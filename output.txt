@@ -1,6 +1,6 @@
 ====================================================================================================
 LEXORA — CLASSIFICATION TEST REPORT
-Total sentences tested: 63
+Total sentences tested: 82
 ====================================================================================================
 
 [01] PASS  (style: general)
@@ -45,12 +45,11 @@ Total sentences tested: 63
      Predicted   : label=0  tier=1  source=local_model
      Gov. target : False  (None)
 ----------------------------------------------------------------------------------------------------
-[08] FAIL  (style: genz)
+[08] PASS  (style: genz)
      Text        : the minister's statement was cap, numbers don't match reality
      True        : label=0  tier=1
-     Predicted   : label=1  tier=4  source=local_model
+     Predicted   : label=0  tier=1  source=local_model
      Gov. target : True  (minister)
-     Flagged     : minister, the minister, don
 ----------------------------------------------------------------------------------------------------
 [09] PASS  (style: genz)
      Text        : not gonna lie the infrastructure plan is looking pretty weak rn
@@ -112,10 +111,10 @@ Total sentences tested: 63
      Predicted   : label=0  tier=1  source=local_model
      Gov. target : True  (govt)
 ----------------------------------------------------------------------------------------------------
-[19] PASS  (style: genz)
+[19] FAIL  (style: genz)
      Text        : bruh the wait times at the passport office are wild, fix your systems
      True        : label=0  tier=1
-     Predicted   : label=0  tier=1  source=local_model
+     Predicted   : label=1  tier=2  source=local_model
      Gov. target : False  (None)
 ----------------------------------------------------------------------------------------------------
 [20] PASS  (style: general)
@@ -189,111 +188,110 @@ Total sentences tested: 63
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (government)
-     Flagged     : government is, an idiot, and complete, complete embarrassment
+     Flagged     : country, government is, an idiot, and complete
 ----------------------------------------------------------------------------------------------------
 [32] PASS  (style: general)
      Text        : These politicians are shameless liars, all of them.
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (politicians)
-     Flagged     : of them, all of, are shameless, liars
+     Flagged     : shameless, of them, all, all of
 ----------------------------------------------------------------------------------------------------
 [33] PASS  (style: genz)
      Text        : the PM is sus af, this whole scheme is a scam and should be shut down
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (pm)
-     Flagged     : af this, and should, be shut, is scam
+     Flagged     : pm is, the pm, af this, and should
 ----------------------------------------------------------------------------------------------------
 [34] PASS  (style: genz)
      Text        : bro the government is such a joke, absolute clowns running this country
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (government)
-     Flagged     : absolute, government is, absolute clowns, bro the
+     Flagged     : country, absolute, government is, this country
 ----------------------------------------------------------------------------------------------------
 [35] PASS  (style: general)
      Text        : these netas are all corrupt scum, waste of space
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (netas)
-     Flagged     : are all, all corrupt, corrupt scum, netas are
+     Flagged     : all corrupt, corrupt, are all, all
 ----------------------------------------------------------------------------------------------------
 [36] PASS  (style: genz)
      Text        : the minister is a total sellout, disgusting behavior honestly
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (minister)
-     Flagged     : behavior, behavior honestly, disgusting, disgusting behavior
+     Flagged     : honestly, behavior, behavior honestly, disgusting
 ----------------------------------------------------------------------------------------------------
-[37] PASS  (style: genz)
+[37] FAIL  (style: genz)
      Text        : tbh this govt is straight up trash, useless from top to bottom
      True        : label=1  tier=2
-     Predicted   : label=1  tier=2  source=local_model
+     Predicted   : label=0  tier=1  source=local_model
      Gov. target : True  (govt)
-     Flagged     : govt is, trash, straight, straight up
 ----------------------------------------------------------------------------------------------------
 [38] PASS  (style: general)
      Text        : These officials are worthless and don't deserve their positions.
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (officials)
-     Flagged     : and don, are worthless, deserve their, officials are
+     Flagged     : officials are, these officials, don deserve, and don
 ----------------------------------------------------------------------------------------------------
 [39] PASS  (style: genz)
      Text        : the CM is a fraud and everyone knows it, absolute disgrace
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (cm)
-     Flagged     : absolute, absolute disgrace, and everyone, cm is
+     Flagged     : absolute, everyone knows, knows, knows it
 ----------------------------------------------------------------------------------------------------
 [40] PASS  (style: general)
      Text        : This administration is full of shameless traitors to the people.
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (administration)
-     Flagged     : shameless, people
+     Flagged     : people, shameless, administration is, this administration
 ----------------------------------------------------------------------------------------------------
 [41] PASS  (style: genz)
      Text        : bruh the govt is a bunch of nikamma fools, embarrassing
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (govt)
-     Flagged     : embarrassing, govt is, bunch, bunch of
+     Flagged     : govt is, bruh, bruh the, bunch
 ----------------------------------------------------------------------------------------------------
 [42] PASS  (style: genz)
      Text        : the whole cabinet is savage trash, none of them deserve respect
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (cabinet)
-     Flagged     : of them, respect, trash, cabinet is
+     Flagged     : of them, respect, cabinet, cabinet is
 ----------------------------------------------------------------------------------------------------
 [43] PASS  (style: general)
      Text        : These leaders don't deserve any respect, they are all frauds.
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (leaders)
-     Flagged     : are all, respect, all frauds, any respect
+     Flagged     : don deserve, are all, respect, all
 ----------------------------------------------------------------------------------------------------
-[44] PASS  (style: genz)
+[44] FAIL  (style: genz)
      Text        : this minister is straight up namak haram, betrayed everyone
      True        : label=1  tier=2
-     Predicted   : label=1  tier=2  source=local_model
+     Predicted   : label=0  tier=1  source=local_model
      Gov. target : True  (minister)
-     Flagged     : minister is, straight, straight up, everyone
 ----------------------------------------------------------------------------------------------------
-[45] FAIL  (style: general)
+[45] PASS  (style: general)
      Text        : The government doesn't care about ordinary citizens, they're all corrupt criminals.
      True        : label=1  tier=2
-     Predicted   : label=0  tier=1  source=local_model
+     Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (government)
+     Flagged     : corrupt criminals, criminals, all corrupt, corrupt
 ----------------------------------------------------------------------------------------------------
 [46] PASS  (style: genz)
      Text        : deadass the PM is a clown and a liar, can't trust a word
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (pm)
-     Flagged     : pm is, the pm
+     Flagged     : pm is, the pm, and liar, can trust
 ----------------------------------------------------------------------------------------------------
 [47] PASS  (style: general)
      Text        : These people in power should be ashamed, absolute disgraces.
@@ -306,21 +304,21 @@ Total sentences tested: 63
      True        : label=1  tier=2
      Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (ministry)
-     Flagged     : embarrassing, straight, straight up, by straight
+     Flagged     : embarrassing, is run, run, run by
 ----------------------------------------------------------------------------------------------------
 [49] PASS  (style: general)
      Text        : We should destroy all these corrupt officials and wipe out this government.
      True        : label=1  tier=3
      Predicted   : label=1  tier=3  source=local_model
      Gov. target : True  (government, officials)
-     Flagged     : we should, out, wipe, these corrupt
+     Flagged     : wipe, we should, these corrupt, out
 ----------------------------------------------------------------------------------------------------
 [50] PASS  (style: general)
      Text        : These politicians don't deserve to live in this country, ban them all.
      True        : label=1  tier=3
-     Predicted   : label=1  tier=3  source=local_model
+     Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (politicians)
-     Flagged     : ban, ban them, country ban, in this
+     Flagged     : don deserve, country, all, these politicians
 ----------------------------------------------------------------------------------------------------
 [51] PASS  (style: genz)
      Text        : deadass we should eliminate every single one of these corrupt leaders
@@ -341,7 +339,7 @@ Total sentences tested: 63
      True        : label=1  tier=3
      Predicted   : label=1  tier=3  source=local_model
      Gov. target : True  (netas)
-     Flagged     : out, wipe, them, these
+     Flagged     : wipe, have, have any, not have
 ----------------------------------------------------------------------------------------------------
 [54] PASS  (style: general)
      Text        : I will kill the minister if this policy isn't reversed.
@@ -376,7 +374,7 @@ Total sentences tested: 63
      True        : label=1  tier=4
      Predicted   : label=1  tier=4  source=local_model
      Gov. target : True  (cm)
-     Flagged     : anymore, cm office, deadass not, gonna torch
+     Flagged     : office, anymore, deadass not, gonna torch
 ----------------------------------------------------------------------------------------------------
 [59] PASS  (style: genz)
      Text        : someone should just kill these ministers already, they deserve it
@@ -394,9 +392,9 @@ Total sentences tested: 63
 [61] PASS  (style: genz)
      Text        : hang the whole cabinet, they don't deserve to breathe honestly
      True        : label=1  tier=4
-     Predicted   : label=1  tier=4  source=local_model
+     Predicted   : label=1  tier=2  source=local_model
      Gov. target : True  (cabinet)
-     Flagged     : they don, breathe, breathe honestly, cabinet they
+     Flagged     : don deserve, honestly, cabinet, whole cabinet
 ----------------------------------------------------------------------------------------------------
 [62] PASS  (style: general)
      Text        : we will attack the collector's office tonight, mark my words
@@ -410,15 +408,140 @@ Total sentences tested: 63
      True        : label=1  tier=4
      Predicted   : label=1  tier=4  source=local_model
      Gov. target : True  (parliament)
-     Flagged     : done, the whole, should, whole
+     Flagged     : bro swear, done, done with, parliament
+----------------------------------------------------------------------------------------------------
+[64] PASS  (style: genz)
+     Text        : that's cap, the numbers don't add up at all
+     True        : label=0  tier=1
+     Predicted   : label=0  tier=1  source=local_model
+     Gov. target : False  (None)
+----------------------------------------------------------------------------------------------------
+[65] PASS  (style: genz)
+     Text        : the report is straight up cap tbh, doesn't match reality
+     True        : label=0  tier=1
+     Predicted   : label=0  tier=1  source=local_model
+     Gov. target : False  (None)
+----------------------------------------------------------------------------------------------------
+[66] PASS  (style: genz)
+     Text        : ngl that statement was cap, everyone can see it
+     True        : label=0  tier=1
+     Predicted   : label=0  tier=1  source=local_model
+     Gov. target : False  (None)
+----------------------------------------------------------------------------------------------------
+[67] PASS  (style: genz)
+     Text        : bro that's mad cap, the data literally contradicts it
+     True        : label=0  tier=1
+     Predicted   : label=0  tier=1  source=local_model
+     Gov. target : False  (None)
+----------------------------------------------------------------------------------------------------
+[68] PASS  (style: genz)
+     Text        : the minister's numbers are cap, someone check the math
+     True        : label=0  tier=1
+     Predicted   : label=0  tier=1  source=local_model
+     Gov. target : True  (minister)
+----------------------------------------------------------------------------------------------------
+[69] PASS  (style: genz)
+     Text        : this whole announcement feels like cap ngl
+     True        : label=0  tier=1
+     Predicted   : label=0  tier=1  source=local_model
+     Gov. target : False  (None)
+----------------------------------------------------------------------------------------------------
+[70] PASS  (style: genz)
+     Text        : the budget figures seem like cap tbh, don't add up
+     True        : label=0  tier=1
+     Predicted   : label=0  tier=1  source=local_model
+     Gov. target : False  (None)
+----------------------------------------------------------------------------------------------------
+[71] PASS  (style: genz)
+     Text        : that press release was cap, no real change happened
+     True        : label=0  tier=1
+     Predicted   : label=0  tier=1  source=local_model
+     Gov. target : False  (None)
+----------------------------------------------------------------------------------------------------
+[72] FAIL  (style: general)
+     Text        : The government doesn't care about ordinary people, and it shows in every policy.
+     True        : label=0  tier=1
+     Predicted   : label=1  tier=2  source=local_model
+     Gov. target : True  (government)
+     Flagged     : people, care, care about, doesn care
+----------------------------------------------------------------------------------------------------
+[73] PASS  (style: general)
+     Text        : Many citizens feel the government is corrupt and out of touch.
+     True        : label=0  tier=1
+     Predicted   : label=0  tier=1  source=local_model
+     Gov. target : True  (government)
+----------------------------------------------------------------------------------------------------
+[74] PASS  (style: general)
+     Text        : The government doesn't care about small farmers, they're being ignored again.
+     True        : label=0  tier=1
+     Predicted   : label=0  tier=1  source=local_model
+     Gov. target : True  (government)
+----------------------------------------------------------------------------------------------------
+[75] PASS  (style: genz)
+     Text        : the govt is corrupt af, everyone knows it, needs to change
+     True        : label=1  tier=2
+     Predicted   : label=1  tier=2  source=local_model
+     Gov. target : True  (govt)
+     Flagged     : corrupt, is corrupt, govt is, af everyone
+----------------------------------------------------------------------------------------------------
+[76] PASS  (style: genz)
+     Text        : the government doesn't care about us, they're all corrupt criminals honestly
+     True        : label=1  tier=2
+     Predicted   : label=1  tier=2  source=local_model
+     Gov. target : True  (government)
+     Flagged     : corrupt criminals, criminals, all corrupt, corrupt
+----------------------------------------------------------------------------------------------------
+[77] PASS  (style: general)
+     Text        : these officials are corrupt criminals, straight up thieves
+     True        : label=1  tier=2
+     Predicted   : label=1  tier=2  source=local_model
+     Gov. target : True  (officials)
+     Flagged     : corrupt criminals, criminals, corrupt, officials are
+----------------------------------------------------------------------------------------------------
+[78] PASS  (style: general)
+     Text        : the ministry is full of corrupt criminals robbing the country blind
+     True        : label=1  tier=2
+     Predicted   : label=1  tier=2  source=local_model
+     Gov. target : True  (ministry)
+     Flagged     : corrupt criminals, criminals, corrupt, country
+----------------------------------------------------------------------------------------------------
+[79] PASS  (style: general)
+     Text        : the government is run by corrupt criminals who don't care about citizens
+     True        : label=1  tier=2
+     Predicted   : label=1  tier=2  source=local_model
+     Gov. target : True  (government)
+     Flagged     : corrupt criminals, criminals, corrupt, care
+----------------------------------------------------------------------------------------------------
+[80] PASS  (style: general)
+     Text        : this administration is corrupt criminals in suits, disgraceful
+     True        : label=1  tier=2
+     Predicted   : label=1  tier=2  source=local_model
+     Gov. target : True  (administration)
+     Flagged     : corrupt criminals, criminals, corrupt, is corrupt
+----------------------------------------------------------------------------------------------------
+[81] PASS  (style: general)
+     Text        : the CM's office is corrupt criminals, plain and simple
+     True        : label=1  tier=2
+     Predicted   : label=1  tier=2  source=local_model
+     Gov. target : True  (cm)
+     Flagged     : corrupt criminals, criminals, corrupt, is corrupt
+----------------------------------------------------------------------------------------------------
+[82] PASS  (style: general)
+     Text        : honestly these are corrupt criminals pretending to be leaders
+     True        : label=1  tier=2
+     Predicted   : label=1  tier=2  source=local_model
+     Gov. target : True  (leaders)
+     Flagged     : corrupt criminals, criminals, corrupt, are corrupt
 ----------------------------------------------------------------------------------------------------
 
 ====================================================================================================
 SUMMARY
 ====================================================================================================
-Label accuracy (0=neutral vs 1=abusive) : 61/63  (96.8%)
-Exact tier accuracy (1-4)               : 61/63  (96.8%)
+Label accuracy (0=neutral vs 1=abusive) : 78/82  (95.1%)
+Exact tier accuracy (1-4)               : 76/82  (92.7%)
 
-Mismatched cases (2):
-  [08] true_label=0 pred_label=1 | true_tier=1 pred_tier=4 | the minister's statement was cap, numbers don't match reality
-  [45] true_label=1 pred_label=0 | true_tier=2 pred_tier=1 | The government doesn't care about ordinary citizens, they're all corrupt criminals.
+Mismatched cases (4):
+  [19] true_label=0 pred_label=1 | true_tier=1 pred_tier=2 | bruh the wait times at the passport office are wild, fix your systems
+  [37] true_label=1 pred_label=0 | true_tier=2 pred_tier=1 | tbh this govt is straight up trash, useless from top to bottom
+  [44] true_label=1 pred_label=0 | true_tier=2 pred_tier=1 | this minister is straight up namak haram, betrayed everyone
+  [72] true_label=0 pred_label=1 | true_tier=1 pred_tier=2 | The government doesn't care about ordinary people, and it shows in every policy.

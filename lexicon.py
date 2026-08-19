@@ -95,6 +95,11 @@ def check_lexicon(text: str) -> dict:
 
     target_hit = [t for t in GOVERNMENT_TARGET_TERMS if re.search(r"\b" + re.escape(t) + r"\b", text_lower)]
 
+    # Always report which known abusive terms matched, regardless of which
+    # tier ends up winning overall — used by classify_local.py to prioritize
+    # the actual abusive word in explanations instead of the target word.
+    abusive_terms_found = matched_tier2
+
     if matched_tier4:
         tier = 4
         matches = matched_tier4
@@ -113,6 +118,7 @@ def check_lexicon(text: str) -> dict:
         "matched_terms": matches,
         "government_target_referenced": bool(target_hit),
         "target_terms_found": target_hit,
+        "abusive_terms_found": abusive_terms_found,
     }
 
 

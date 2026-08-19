@@ -20,7 +20,7 @@ Run train_model.py first to produce tier_model.pkl.
 
 import os
 import joblib
-from lexicon import check_lexicon
+from lexicon import check_lexicon, GOVERNMENT_TARGET_TERMS, TIER2_ABUSIVE_TERMS
 
 MODEL_PATH = "tier_model.pkl"
 
@@ -42,15 +42,23 @@ _clf = _pipeline.named_steps["clf"]
 # NOT a linguistic filter, just noise reduction for a small-data model.
 _STOPWORDS = {"is", "are", "the", "a", "an", "and", "of", "to", "this",
               "that", "it", "in", "on", "for", "we", "they", "bro", "tbh",
-              "ngl", "lol", "lowkey", "highkey"}
+              "ngl", "lol", "lowkey", "highkey", "them", "these", "those",
+              "all", "don", "some", "any"}
+
+# Government/target words should never be shown as "the abusive word" -
+# they're WHO the sentence is about, not WHAT makes it abusive.
+_TARGET_WORDS = set(GOVERNMENT_TARGET_TERMS)
 
 
 def _top_contributing_terms(text: str, predicted_tier: int, top_n: int = 4) -> list:
     """
     Lightweight explanation: which n-grams in this sentence had the
-    strongest learned weight toward the predicted tier's class.
-    On this small a dataset, treat this as a rough demo aid, not a
-    reliable explanation - it will improve as the dataset grows.
+    strongest learned weight toward the predicted tier's class, EXCLUDING
+    target-entity words (e.g. "politicians", "minister") and filler/stopwords
+    so the explanation surfaces the actual abusive vocabulary, not who the
+    sentence is about. On this small a dataset, treat this as a rough demo
+    aid, not a fully reliable explanation - it will improve as the dataset
+    grows.
     """
     class_index = list(_clf.classes_).index(predicted_tier)
     coefs = _clf.coef_[class_index] if len(_clf.classes_) > 2 else _clf.coef_[0]
@@ -59,13 +67,42 @@ def _top_contributing_terms(text: str, predicted_tier: int, top_n: int = 4) -> l
     feature_names = _vectorizer.get_feature_names_out()
     nonzero = vec.nonzero()[1]
 
+    def is_usable(term: str) -> bool:
+        if len(term) <= 2:
+            return False
+        words_in_term = term.split()
+        # drop the term if EVERY word in it is a stopword or target word
+        if all(w in _STOPWORDS or w in _TARGET_WORDS for w in words_in_term):
+            return False
+        return True
+
     scored = [
         (feature_names[i], coefs[i] * vec[0, i])
         for i in nonzero
-        if feature_names[i] not in _STOPWORDS and len(feature_names[i]) > 2
+        if is_usable(feature_names[i])
     ]
     scored.sort(key=lambda x: x[1], reverse=True)
     return [term for term, score in scored[:top_n] if score > 0]
+
+
+def _flagged_terms_for(text: str, predicted_tier: int, lex: dict) -> list:
+    """
+    Combines two signals, in priority order:
+      1. Known abusive terms directly matched from the lexicon (TIER2_ABUSIVE_TERMS)
+         - these are the most reliable, human-checked abusive words.
+      2. Top TF-IDF-weighted terms from the trained model, as a fallback/supplement,
+         with target words and filler already excluded.
+    Deduplicates and caps at 4 terms so the explanation stays readable.
+    """
+    known_abusive = lex.get("abusive_terms_found", [])
+    tfidf_terms = _top_contributing_terms(text, predicted_tier)
+
+    combined = list(known_abusive)  # known abusive terms come first
+    for term in tfidf_terms:
+        if term not in combined and term.strip() not in known_abusive:
+            combined.append(term)
+
+    return combined[:4]
 
 
 def classify(text: str) -> dict:
@@ -97,7 +134,7 @@ def classify(text: str) -> dict:
 
     # STAGE 2 - only explain WHICH words drove it if tier looks concerning
     if predicted_tier >= 2 and government_target:
-        result["flagged_terms"] = _top_contributing_terms(text, predicted_tier)
+        result["flagged_terms"] = _flagged_terms_for(text, predicted_tier, lex)
 
     return result
 
