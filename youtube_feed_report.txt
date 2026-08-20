@@ -1,0 +1,85 @@
+====================================================================================================
+  LEXORA  -  SOCIAL MEDIA MONITORING REPORT
+  Query / Hashtag  : Agnipath scheme protests
+  Comments Scanned : 97   |   Flagged : 8   |   Lawful : 89
+====================================================================================================
+
+  NOTE: Generated from real public YouTube comments via YouTube Data API. Flagged content is queued for HUMAN review only — nothing is auto-actioned.
+
+  FLAGGED COMMENTS  (Tier 2 / 3 / 4 only  —  8 total)
+  ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  [1] Agnipath Scheme Protest: यूपी के Bulandshahr में Modi सरकार के फ़ैसले से भड़के युवा (BBC Hindi)
+       URL  : https://www.youtube.com/watch?v=GWyxP3uEcoI
+       Flagged comments on this video : 1
+
+       TIER 2  (Abusive / Disrespectful)
+       User    : @@deshii7820
+       Comment : "Le government- अर्थी तैयार है। 😒"
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  [2] Aftermath Of Agneepath Scheme Protests; Protesters Concerns Legitimate, But Are Riots Acceptable?
+       URL  : https://www.youtube.com/watch?v=cYBRYiU6BK4
+       Flagged comments on this video : 4
+
+       TIER 2  (Abusive / Disrespectful)
+       User    : @@Adnankhan-fd1zr
+       Comment : "Yeah now the modi gov will not fine them and bulldoz their houses."
+
+       TIER 2  (Abusive / Disrespectful)
+       User    : @@thanigeshd14
+       Comment : "Can they have the guts to ban permanent ly all tainted politicians."
+
+       TIER 2  (Abusive / Disrespectful)
+       User    : @@anandnairkollam
+       Comment : "Opposition is involved.  That girl and 2vguys after her giving speech are political workers. Thosr 2 guys are not aged for army recruitment.  They are politicians."
+
+       TIER 2  (Abusive / Disrespectful)
+       User    : @@punjabinetworld1695
+       Comment : "Full support for the protestors...and the arosnists let them down. MODi let our youngsters down,..no mention of that here"
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  [3] Secunderabad Station Ground Report: Protestors Justify Violent Protests Against Agneepath Scheme
+       URL  : https://www.youtube.com/watch?v=wO2ComkcUfc
+       Flagged comments on this video : 1
+
+       TIER 2  (Abusive / Disrespectful)
+       User    : @@shivramrajput5883
+       Comment : "Idiots these are not modi's properties..these are our ...public...these made by our taxes money ...and will be repaire again from our money...keep it in mind ....do peaceful protest .....you are protesting for army..country's service and on the other hand destroying country's property....."
+       Flagged : idiot
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  [4] Agnipath Scheme Protests: Centre Introduces Multiple Measures To Back Agniveers After 4-Year Service
+       URL  : https://www.youtube.com/watch?v=90cwFJkIvh4
+       Flagged comments on this video : 2
+
+       TIER 2  (Abusive / Disrespectful)
+       User    : @@santoshbanerjee486
+       Comment : "Amazon aur Flipkart ka offer de rahen hai keya ? Alu , Piyaz ka sauda Hain keya ? Shame on this Defence Minister! Rajnath hi , your ""Dear Leader"" finalized it under instruction from the Nagpur people !! You all were kept in dark about it ! Why Don't you charge your ""56"" inch. PM to face these boys ? Where goes his stupid ""Man Ki Baat""?? You people under this fascist ruler are parrots!! Lucoplast Laga diya aap logo ko muh mein !!"
+
+       TIER 2  (Abusive / Disrespectful)
+       User    : @@balbadhrapathruniprabhakar6278
+       Comment : "Why this Govt bend backward to accommodate roiters and desh drohies.  Don't  care about tax payers citizens."
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────
+
+====================================================================================================
+  OVERALL STATISTICS
+====================================================================================================
+  Total comments scanned    : 97
+  Tier 1  Lawful / Neutral  : 89  (91.8%)
+  Tier 2  Abusive           : 8  (8.2%)
+  Tier 3  Hate Speech       : 0  (0.0%)
+  Tier 4  Direct Threat     : 0  (0.0%)
+
+====================================================================================================
+  SOCIAL IMPACT ASSESSMENT  (AI-Generated)
+====================================================================================================
+  Based on 97 YouTube comments scanned for 'Agnipath scheme protests', 8 (8.2%) were flagged as
+  abusive, disrespectful, or threatening toward government entities. The remaining 89 (91.8%)
+  were classified as lawful criticism or neutral discussion. RISK LEVEL: Moderate.
+
+====================================================================================================

@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+transformers
+torch
+joblib
+scikit-learn
+youtube-search-python
+google-api-python-client

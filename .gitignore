@@ -1,3 +1,6 @@
 *.pkl
 tier_model.pkl
 *.csv
+run_tests.py
+output.txt
+.env
