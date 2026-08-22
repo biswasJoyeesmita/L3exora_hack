@@ -1,0 +1,5048 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Government Abuse Detection System For Social Media
+    </title>
+
+    <meta name="description"
+        content="Government Abuse Detection System For Social Media — social-media monitoring and human-review dashboard.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+
+    <style>
+        :root {
+
+            --bg: #050914;
+
+            --bg2: #08111f;
+
+            --panel: rgba(10, 20, 36, .78);
+
+            --panel2: rgba(13, 28, 49, .72);
+
+            --line: rgba(130, 180, 220, .16);
+
+            --text: #eaf7ff;
+
+            --muted: #8fa7bd;
+
+            --cyan: #57e6ff;
+
+            --blue: #2f7cff;
+
+            --violet: #9b8bff;
+
+            --green: #43e6a0;
+
+            --yellow: #ffd166;
+
+            --red: #ff5c7a;
+
+            --shadow: 0 24px 80px rgba(0, 0, 0, .38);
+
+            --radius: 22px;
+
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            background:
+                radial-gradient(circle at 15% 10%,
+                    rgba(47, 124, 255, .13),
+                    transparent 28%),
+
+                radial-gradient(circle at 90% 20%,
+                    rgba(155, 139, 255, .10),
+                    transparent 25%),
+
+                linear-gradient(180deg,
+                    #030711 0%,
+                    #07101d 48%,
+                    #050a13 100%);
+
+            color: var(--text);
+
+            font-family:
+                Inter,
+                system-ui,
+                sans-serif;
+
+            line-height: 1.6;
+
+            overflow-x: hidden;
+        }
+
+
+        body:before {
+
+            content: "";
+
+            position: fixed;
+
+            inset: 0;
+
+            pointer-events: none;
+
+            opacity: .2;
+
+            background-image:
+                linear-gradient(rgba(255, 255, 255, .018) 1px,
+                    transparent 1px),
+                linear-gradient(90deg,
+                    rgba(255, 255, 255, .018) 1px,
+                    transparent 1px);
+
+            background-size: 45px 45px;
+
+            mask-image:
+                linear-gradient(to bottom,
+                    #000,
+                    transparent 90%);
+
+            z-index: -1;
+        }
+
+
+        a {
+
+            color: inherit;
+
+            text-decoration: none;
+        }
+
+
+        button,
+        input,
+        textarea {
+
+            font: inherit;
+        }
+
+
+        button {
+
+            cursor: pointer;
+        }
+
+
+        .hidden {
+
+            display: none !important;
+        }
+
+
+        .visually-hidden {
+
+            position: absolute !important;
+
+            width: 1px;
+
+            height: 1px;
+
+            padding: 0;
+
+            margin: -1px;
+
+            overflow: hidden;
+
+            clip: rect(0, 0, 0, 0);
+
+            white-space: nowrap;
+
+            border: 0;
+        }
+
+
+        /* ================================
+           NAVIGATION
+        ================================= */
+
+        .navbar {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            right: 0;
+
+            z-index: 1000;
+
+            background:
+                rgba(3, 7, 17, .72);
+
+            border-bottom:
+                1px solid rgba(130, 180, 220, .12);
+
+            backdrop-filter:
+                blur(18px);
+        }
+
+
+        .navbar__inner {
+
+            max-width: 1200px;
+
+            margin: auto;
+
+            padding: 14px 22px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+
+        .brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            min-width: 330px;
+        }
+
+
+        .brand__mark {
+
+            display: grid;
+
+            place-items: center;
+
+            color: var(--cyan);
+
+            filter:
+                drop-shadow(0 0 9px rgba(87, 230, 255, .45));
+        }
+
+
+        .brand__text {
+
+            display: flex;
+
+            flex-direction: column;
+
+            line-height: 1;
+        }
+
+
+        .brand__name {
+
+            font:
+                700 15px/1.15 "Space Grotesk",
+                sans-serif;
+
+            letter-spacing: .10em;
+        }
+
+
+        .brand__tagline {
+
+            font-size: 9px;
+
+            color: #7790a8;
+
+            letter-spacing: .08em;
+
+            text-transform: uppercase;
+
+            margin-top: 5px;
+        }
+
+
+        .nav {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+        }
+
+
+        .nav__link {
+
+            font-size: 13px;
+
+            color: #a9bdd0;
+
+            padding: 9px 12px;
+
+            border-radius: 10px;
+
+            transition: .2s;
+        }
+
+
+        .nav__link:hover,
+        .nav__link.active {
+
+            color: #fff;
+
+            background:
+                rgba(87, 230, 255, .08);
+        }
+
+
+        .nav-toggle {
+
+            display: none;
+
+            background: none;
+
+            border: 0;
+
+            padding: 8px;
+        }
+
+
+        .nav-toggle span {
+
+            display: block;
+
+            width: 25px;
+
+            height: 2px;
+
+            background: #cfefff;
+
+            margin: 5px;
+
+            border-radius: 5px;
+        }
+
+
+        /* ================================
+           HERO
+        ================================= */
+
+        .hero {
+
+            min-height: 100vh;
+
+            padding:
+                125px 22px 65px;
+
+            position: relative;
+        }
+
+
+        .hero__inner {
+
+            max-width: 1200px;
+
+            margin: auto;
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            align-items: center;
+
+            gap: 42px;
+
+            min-height:
+                calc(100vh - 190px);
+        }
+
+
+        .hero__content {
+
+            max-width: 650px;
+        }
+
+
+        .eyebrow {
+
+            color: var(--cyan);
+
+            font:
+                600 11px/1.4 "JetBrains Mono",
+                monospace;
+
+            letter-spacing: .11em;
+
+            text-transform: uppercase;
+        }
+
+
+        .hero__title {
+
+            font:
+                700 clamp(40px, 5vw, 72px)/.98 "Space Grotesk",
+                sans-serif;
+
+            letter-spacing: -.045em;
+
+            margin:
+                18px 0 23px;
+        }
+
+
+        .text-gradient {
+
+            background:
+                linear-gradient(90deg,
+                    #eafcff,
+                    var(--cyan) 48%,
+                    #a78bff);
+
+            -webkit-background-clip: text;
+
+            background-clip: text;
+
+            color: transparent;
+        }
+
+
+        .hero__subtitle,
+        .section__subtitle {
+
+            color: var(--muted);
+
+            max-width: 670px;
+
+            font-size: 16px;
+        }
+
+
+        .hero__actions {
+
+            display: flex;
+
+            gap: 12px;
+
+            margin: 28px 0;
+        }
+
+
+        .btn {
+
+            border:
+                1px solid var(--line);
+
+            border-radius: 12px;
+
+            padding:
+                12px 18px;
+
+            color: #eaffff;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 9px;
+
+            transition: .2s;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+
+        .btn--primary {
+
+            background:
+                linear-gradient(135deg,
+                    rgba(47, 124, 255, .9),
+                    rgba(87, 230, 255, .16));
+
+            border-color:
+                rgba(87, 230, 255, .42);
+
+            box-shadow:
+                0 12px 30px rgba(47, 124, 255, .18);
+        }
+
+
+        .btn--primary:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 15px 40px rgba(47, 124, 255, .3);
+        }
+
+
+        .btn--ghost {
+
+            background:
+                rgba(255, 255, 255, .025);
+        }
+
+
+        .btn--ghost:hover {
+
+            background:
+                rgba(255, 255, 255, .07);
+        }
+
+
+        .hero__meta {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 9px;
+        }
+
+
+        .meta-chip {
+
+            font-size: 11px;
+
+            color: #9bb0c4;
+
+            border:
+                1px solid var(--line);
+
+            padding:
+                8px 10px;
+
+            border-radius: 999px;
+
+            background:
+                rgba(255, 255, 255, .025);
+        }
+
+
+        .meta-chip i {
+
+            color: var(--cyan);
+
+            margin-right: 5px;
+        }
+
+
+        /* ================================
+           3D GRAPH
+        ================================= */
+
+        .hero__visual--frontpage {
+
+            min-height: 540px;
+
+            display: grid;
+
+            place-items: center;
+        }
+
+
+        .context-graph {
+
+            position: relative;
+
+            width: min(100%, 560px);
+
+            height: 560px;
+
+            overflow: visible;
+        }
+
+
+        .context-graph__svg {
+
+            position: absolute;
+
+            inset: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            overflow: visible;
+        }
+
+
+        .graph-edge {
+
+            stroke:
+                rgba(87, 230, 255, .18);
+
+            stroke-width: 1;
+
+            stroke-dasharray: 4 7;
+
+            animation:
+                edgePulse 3s ease-in-out infinite;
+        }
+
+
+        .graph-node {
+
+            fill: #071624;
+
+            stroke:
+                rgba(87, 230, 255, .55);
+
+            stroke-width: 1.4;
+
+            filter:
+                drop-shadow(0 0 8px rgba(87, 230, 255, .3));
+
+            animation:
+                nodePulse 2.8s ease-in-out infinite;
+        }
+
+
+        .graph-node.hot {
+
+            stroke:
+                rgba(255, 92, 122, .8);
+
+            filter:
+                drop-shadow(0 0 10px rgba(255, 92, 122, .45));
+        }
+
+
+        .graph-label {
+
+            fill: #9bb7ca;
+
+            font:
+                500 9px Inter,
+                sans-serif;
+
+            letter-spacing: .03em;
+        }
+
+
+        .logo3d {
+
+            position: absolute;
+
+            top: 50%;
+
+            left: 50%;
+
+            width: 45%;
+
+            height: 45%;
+
+            max-width: 245px;
+
+            max-height: 245px;
+
+            transform:
+                translate(-50%, -50%);
+
+            perspective: 1100px;
+
+            pointer-events: none;
+
+            z-index: 8;
+
+            filter:
+                drop-shadow(0 0 12px rgba(87, 230, 255, .65)) drop-shadow(0 0 35px rgba(47, 124, 255, .32));
+        }
+
+
+        .logo3d__tilt,
+        .logo3d__scene {
+
+            width: 100%;
+
+            height: 100%;
+
+            transform-style: preserve-3d;
+        }
+
+
+        .logo3d__tilt {
+
+            animation:
+                logoWobble 7s ease-in-out infinite;
+        }
+
+
+        .logo3d__scene {
+
+            position: relative;
+
+            animation:
+                logoSpin 13s linear infinite;
+        }
+
+
+        .logo3d__hex,
+        .logo3d__ring,
+        .logo3d__spoke,
+        .logo3d__core,
+        .logo3d__wordmark,
+        .logo3d__scan {
+
+            position: absolute;
+
+            inset: 0;
+        }
+
+
+        .logo3d__hex {
+
+            color: var(--cyan);
+        }
+
+
+        .logo3d__hex svg {
+
+            width: 100%;
+
+            height: 100%;
+        }
+
+
+        .logo3d__hex--front {
+
+            transform:
+                translateZ(32px) scale(1.03);
+
+            filter:
+                drop-shadow(0 0 8px rgba(87, 230, 255, .85));
+        }
+
+
+        .logo3d__hex--mid {
+
+            transform:
+                translateZ(0) scale(.94);
+
+            color: var(--violet);
+
+            opacity: .85;
+        }
+
+
+        .logo3d__hex--back {
+
+            transform:
+                translateZ(-32px) scale(.86);
+
+            opacity: .45;
+        }
+
+
+        .logo3d__ring {
+
+            border:
+                1px solid rgba(87, 230, 255, .35);
+
+            border-radius: 50%;
+
+            box-shadow:
+                0 0 14px rgba(87, 230, 255, .12);
+        }
+
+
+        .logo3d__ring--a {
+
+            transform:
+                rotateX(72deg) scale(1.18);
+
+            animation:
+                ringPulse 4.5s ease-in-out infinite;
+        }
+
+
+        .logo3d__ring--b {
+
+            transform:
+                rotateX(72deg) rotateZ(60deg) scale(1.32);
+
+            border-color:
+                rgba(155, 139, 255, .3);
+
+            animation:
+                ringPulse 4.5s ease-in-out infinite 1.5s;
+        }
+
+
+        .logo3d__spoke {
+
+            top: 50%;
+
+            left: 50%;
+
+            width: 2px;
+
+            height: 62px;
+
+            margin:
+                -31px 0 0 -1px;
+
+            background:
+                linear-gradient(180deg,
+                    transparent,
+                    rgba(87, 230, 255, .85),
+                    transparent);
+
+            box-shadow:
+                0 0 10px rgba(87, 230, 255, .5);
+
+            transform-origin: center;
+        }
+
+
+        .logo3d__spoke--1 {
+
+            transform:
+                rotateX(90deg) translateZ(32px);
+        }
+
+
+        .logo3d__spoke--2 {
+
+            transform:
+                rotateY(90deg) rotateX(90deg) translateZ(32px);
+        }
+
+
+        .logo3d__spoke--3 {
+
+            transform:
+                rotateX(90deg) rotateZ(60deg) translateZ(32px);
+        }
+
+
+        .logo3d__core {
+
+            width: 18px;
+
+            height: 18px;
+
+            margin: auto;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(circle at 35% 30%,
+                    #fff 0 12%,
+                    #57e6ff 43%,
+                    #2f7cff 72%,
+                    #8d5cff 100%);
+
+            box-shadow:
+                0 0 12px 3px rgba(87, 230, 255, .9),
+                0 0 34px 8px rgba(47, 124, 255, .45);
+
+            animation:
+                corePulse 2.4s ease-in-out infinite;
+
+            transform:
+                translateZ(45px);
+        }
+
+
+        .logo3d__scan {
+
+            inset: 17%;
+
+            border-radius: 50%;
+
+            overflow: hidden;
+
+            opacity: .5;
+
+            transform:
+                translateZ(38px);
+
+            mask:
+                radial-gradient(circle,
+                    #000 0 60%,
+                    transparent 61%);
+        }
+
+
+        .logo3d__scan:after {
+
+            content: "";
+
+            position: absolute;
+
+            left: -20%;
+
+            right: -20%;
+
+            top: -10%;
+
+            height: 2px;
+
+            background:
+                linear-gradient(90deg,
+                    transparent,
+                    #57e6ff,
+                    #fff,
+                    #9b8bff,
+                    transparent);
+
+            box-shadow:
+                0 0 14px #57e6ff;
+
+            animation:
+                scan 2.8s ease-in-out infinite;
+        }
+
+
+        .logo3d__wordmark {
+
+            inset: auto 0 -10px;
+
+            height: 28px;
+
+            text-align: center;
+
+            font:
+                700 13px "Space Grotesk";
+
+            letter-spacing: .34em;
+
+            padding-left: .34em;
+
+            color: #dffcff;
+
+            text-shadow:
+                0 0 10px rgba(87, 230, 255, .9);
+
+            transform:
+                translateZ(58px);
+
+            animation:
+                wordGlow 2.8s ease-in-out infinite;
+        }
+
+
+        .context-graph__label {
+
+            position: absolute;
+
+            bottom: 15px;
+
+            left: 50%;
+
+            transform:
+                translateX(-50%);
+
+            white-space: nowrap;
+
+            color: #6f8ba3;
+
+            font:
+                500 9px "JetBrains Mono";
+
+            text-transform: uppercase;
+
+            letter-spacing: .08em;
+        }
+
+
+        .context-graph__label i {
+
+            color: var(--cyan);
+
+            font-size: 7px;
+
+            margin-right: 6px;
+
+            text-shadow:
+                0 0 10px var(--cyan);
+        }
+
+
+        .hero__scrollcue {
+
+            position: absolute;
+
+            bottom: 25px;
+
+            left: 50%;
+
+            transform:
+                translateX(-50%);
+
+            width: 22px;
+
+            height: 35px;
+
+            border:
+                1px solid rgba(255, 255, 255, .22);
+
+            border-radius: 20px;
+
+            display: grid;
+
+            place-items: start center;
+
+            padding-top: 6px;
+        }
+
+
+        .hero__scrollcue span {
+
+            width: 3px;
+
+            height: 7px;
+
+            border-radius: 5px;
+
+            background: var(--cyan);
+
+            animation:
+                scrollDot 1.8s infinite;
+        }
+
+
+        /* ================================
+           GENERAL SECTIONS
+        ================================= */
+
+        .section {
+
+            padding:
+                100px 22px;
+        }
+
+
+        .section--alt {
+
+            background:
+                linear-gradient(180deg,
+                    rgba(255, 255, 255, .015),
+                    rgba(255, 255, 255, .025));
+        }
+
+
+        .section__inner {
+
+            max-width: 1200px;
+
+            margin: auto;
+        }
+
+
+        .section__head {
+
+            max-width: 820px;
+
+            margin-bottom: 34px;
+        }
+
+
+        .section__title {
+
+            font:
+                700 clamp(30px, 4vw, 48px)/1.05 "Space Grotesk";
+
+            margin:
+                8px 0 12px;
+
+            letter-spacing: -.03em;
+        }
+
+
+        .analysis-panel,
+        .card {
+
+            border:
+                1px solid var(--line);
+
+            background:
+                var(--panel);
+
+            border-radius:
+                var(--radius);
+
+            box-shadow:
+                var(--shadow);
+        }
+
+
+        /* ================================
+           REPORT CONTROLS
+        ================================= */
+
+        .analysis-panel {
+
+            padding: 22px;
+        }
+
+
+        .report-control-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr auto;
+
+            align-items: end;
+
+            gap: 18px;
+        }
+
+
+        .control-label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #9bb0c4;
+
+            font-size: 11px;
+
+            text-transform: uppercase;
+
+            letter-spacing: .08em;
+        }
+
+
+        .report-query {
+
+            width: 100%;
+
+            min-height: 52px;
+
+            background: #030914;
+
+            border:
+                1px solid rgba(130, 180, 220, .16);
+
+            border-radius: 14px;
+
+            color: #eaf7ff;
+
+            padding:
+                14px 16px;
+
+            outline: none;
+
+            transition: .2s;
+        }
+
+
+        .report-query:focus {
+
+            border-color:
+                rgba(87, 230, 255, .55);
+
+            box-shadow:
+                0 0 0 4px rgba(87, 230, 255, .06);
+        }
+
+
+        .report-actions {
+
+            display: flex;
+
+            gap: 9px;
+
+            flex-wrap: wrap;
+        }
+
+
+        .report-note {
+
+            margin:
+                15px 0 0;
+
+            font-size: 11px;
+
+            color: #6f879b;
+        }
+
+
+        .report-note i {
+
+            color: var(--cyan);
+
+            margin-right: 5px;
+        }
+
+
+        /* ================================
+           RESULTS
+        ================================= */
+
+        .results {
+
+            margin-top: 22px;
+        }
+
+
+        .empty-state,
+        .loading-state {
+
+            min-height: 190px;
+
+            border:
+                1px dashed rgba(130, 180, 220, .18);
+
+            border-radius: 18px;
+
+            display: grid;
+
+            place-items: center;
+
+            text-align: center;
+
+            color: #71879a;
+
+            padding: 30px;
+        }
+
+
+        .empty-state i {
+
+            font-size: 28px;
+
+            color: #57e6ff;
+
+            margin-bottom: 8px;
+        }
+
+
+        .loading-state {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 15px;
+        }
+
+
+        .spinner {
+
+            width: 36px;
+
+            height: 36px;
+
+            border:
+                3px solid rgba(87, 230, 255, .15);
+
+            border-top-color:
+                var(--cyan);
+
+            border-radius: 50%;
+
+            animation:
+                spin 1s linear infinite;
+        }
+
+
+        .result-content {
+
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .result-content>.report-header {
+            order: 1;
+        }
+
+        .result-content>#flaggedContent {
+            order: 2;
+        }
+
+        .result-content>#mainStats {
+            order: 3;
+        }
+
+        .result-content>#tierDistribution {
+            order: 4;
+        }
+
+        .result-content>#socialAssessment {
+            order: 5;
+        }
+
+
+        .detect-table a {
+
+            color: var(--cyan);
+            text-decoration: underline;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 3px;
+        }
+
+
+        .detect-table a:hover {
+
+            color: var(--green);
+        }
+
+
+        /* ================================
+           REPORT HEADER
+        ================================= */
+
+        .report-header {
+
+            padding: 22px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .report-header__title {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            font:
+                600 19px "Space Grotesk";
+
+            margin-bottom: 18px;
+        }
+
+
+        .report-header__title i {
+
+            color: #ff5c7a;
+        }
+
+
+        .report-header__row {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr 1fr;
+
+            gap: 15px;
+        }
+
+
+        .report-info {
+
+            padding:
+                14px;
+
+            border:
+                1px solid rgba(130, 180, 220, .10);
+
+            border-radius: 14px;
+
+            background:
+                rgba(255, 255, 255, .018);
+        }
+
+
+        .report-info__label {
+
+            display: block;
+
+            color: #6f879b;
+
+            font-size: 10px;
+
+            text-transform: uppercase;
+
+            letter-spacing: .08em;
+
+            margin-bottom: 5px;
+        }
+
+
+        .report-info__value {
+
+            display: block;
+
+            color: #eaf7ff;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            word-break: break-word;
+        }
+
+
+        /* ================================
+           STAT CARDS
+        ================================= */
+
+        .result-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 18px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .stat-card {
+
+            padding: 22px;
+
+            display: flex;
+
+            gap: 17px;
+
+            align-items: center;
+        }
+
+
+        .stat-card__icon {
+
+            width: 50px;
+
+            height: 50px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 14px;
+
+            background:
+                rgba(87, 230, 255, .08);
+
+            color: var(--cyan);
+
+            font-size: 20px;
+
+            flex-shrink: 0;
+        }
+
+
+        .stat-card__label {
+
+            display: block;
+
+            color: #7891a7;
+
+            font-size: 11px;
+
+            text-transform: uppercase;
+
+            letter-spacing: .08em;
+        }
+
+
+        .stat-card__value {
+
+            display: block;
+
+            font:
+                700 38px "Space Grotesk";
+
+            line-height: 1.1;
+        }
+
+
+        .stat-card__hint {
+
+            font-size: 11px;
+
+            color: #647b90;
+        }
+
+
+        /* ================================
+           ASSESSMENT
+        ================================= */
+
+        .assessment-card {
+
+            padding: 22px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .assessment-card__head {
+
+            display: flex;
+
+            gap: 9px;
+
+            align-items: center;
+
+            font-weight: 700;
+
+            margin-bottom: 16px;
+        }
+
+
+        .assessment-card__head i {
+
+            color: var(--violet);
+        }
+
+
+        .assessment-card__row {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 20px;
+
+            border-top:
+                1px solid var(--line);
+
+            padding: 12px 0;
+        }
+
+
+        .assessment-card__key {
+
+            color: #7891a7;
+
+            font-size: 12px;
+        }
+
+
+        .badge {
+
+            padding:
+                5px 10px;
+
+            border-radius: 999px;
+
+            background:
+                rgba(67, 230, 160, .12);
+
+            color: var(--green);
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+
+        .badge--outline {
+
+            background: transparent;
+
+            border:
+                1px solid var(--line);
+
+            color: #9db1c2;
+        }
+
+
+        .assessment-card__bar {
+
+            height: 8px;
+
+            border-radius: 9px;
+
+            background: #0b1725;
+
+            overflow: hidden;
+
+            margin:
+                12px 0 16px;
+        }
+
+
+        .assessment-card__bar-fill {
+
+            height: 100%;
+
+            width: 0%;
+
+            background:
+                linear-gradient(90deg,
+                    var(--green),
+                    var(--yellow),
+                    var(--red));
+
+            border-radius: 9px;
+
+            transition: .6s;
+        }
+
+
+        .assessment-card__disclaimer {
+
+            font-size: 11px;
+
+            color: #61788d;
+
+            margin: 0;
+
+            line-height: 1.7;
+        }
+
+
+        .assessment-card__disclaimer i {
+
+            color: #718ba2;
+
+            margin-right: 5px;
+        }
+
+
+        /* ================================
+           TIER GRID
+        ================================= */
+
+        .tier-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 12px;
+
+            margin-top: 18px;
+        }
+
+
+        .tier-card {
+
+            padding: 16px;
+
+            border:
+                1px solid var(--line);
+
+            border-radius: 15px;
+
+            background:
+                rgba(255, 255, 255, .018);
+        }
+
+
+        .tier-card__label {
+
+            display: block;
+
+            font-size: 10px;
+
+            color: #6f879b;
+
+            text-transform: uppercase;
+
+            letter-spacing: .06em;
+
+            margin-bottom: 5px;
+        }
+
+
+        .tier-card__value {
+
+            font:
+                700 28px "Space Grotesk";
+        }
+
+
+        .tier-card--1 .tier-card__value {
+
+            color: var(--green);
+        }
+
+
+        .tier-card--2 .tier-card__value {
+
+            color: var(--yellow);
+        }
+
+
+        .tier-card--3 .tier-card__value {
+
+            color: #ff9c6b;
+        }
+
+
+        .tier-card--4 .tier-card__value {
+
+            color: var(--red);
+        }
+
+
+        /* ================================
+           TABLE
+        ================================= */
+
+        .table-card {
+
+            overflow: hidden;
+
+            margin-top: 18px;
+        }
+
+
+        .table-card__head {
+
+            padding:
+                18px 20px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            border-bottom:
+                1px solid var(--line);
+        }
+
+
+        .table-card__head h3 {
+
+            margin: 0;
+
+            font:
+                600 17px "Space Grotesk";
+        }
+
+
+        .table-card__count {
+
+            font:
+                500 10px "JetBrains Mono";
+
+            color: #7c93a8;
+
+            white-space: nowrap;
+        }
+
+
+        .table-wrap {
+
+            overflow: auto;
+        }
+
+
+        .detect-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 1050px;
+        }
+
+
+        .detect-table th,
+        .detect-table td {
+
+            text-align: left;
+
+            padding:
+                13px 18px;
+
+            border-bottom:
+                1px solid rgba(130, 180, 220, .09);
+
+            font-size: 12px;
+
+            vertical-align: top;
+        }
+
+
+        .detect-table th {
+
+            color: #6e879d;
+
+            text-transform: uppercase;
+
+            letter-spacing: .08em;
+
+            font-size: 9px;
+        }
+
+
+        .detect-table td {
+
+            color: #c9d9e6;
+        }
+
+
+        .detect-table td a {
+
+            color: var(--cyan);
+
+            text-decoration: underline;
+
+            text-decoration-color:
+                rgba(87, 230, 255, .35);
+        }
+
+
+        .detect-table td a:hover {
+
+            color: #fff;
+        }
+
+
+        .term-badge {
+
+            display: inline-block;
+
+            padding:
+                4px 8px;
+
+            border-radius: 7px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+
+        .tier-1 {
+
+            background:
+                rgba(67, 230, 160, .09);
+
+            color:
+                var(--green);
+
+            border:
+                1px solid rgba(67, 230, 160, .16);
+        }
+
+
+        .tier-2 {
+
+            background:
+                rgba(255, 209, 102, .09);
+
+            color:
+                var(--yellow);
+
+            border:
+                1px solid rgba(255, 209, 102, .16);
+        }
+
+
+        .tier-3 {
+
+            background:
+                rgba(255, 156, 107, .09);
+
+            color:
+                #ff9c6b;
+
+            border:
+                1px solid rgba(255, 156, 107, .16);
+        }
+
+
+        .tier-4 {
+
+            background:
+                rgba(255, 92, 122, .09);
+
+            color:
+                #ff91a5;
+
+            border:
+                1px solid rgba(255, 92, 122, .16);
+        }
+
+
+        .table-empty {
+
+            text-align: center;
+
+            color: #71879a;
+
+            padding: 35px;
+        }
+
+
+        /* ================================
+           FEATURES
+        ================================= */
+
+        .feature-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 18px;
+        }
+
+
+        .feature-card {
+
+            padding: 25px;
+        }
+
+
+        .feature-card__icon {
+
+            width: 50px;
+
+            height: 50px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 14px;
+
+            background:
+                rgba(87, 230, 255, .08);
+
+            color: var(--cyan);
+
+            font-size: 20px;
+        }
+
+
+        .feature-card h3 {
+
+            font:
+                600 19px "Space Grotesk";
+
+            margin:
+                18px 0 7px;
+        }
+
+
+        .feature-card p {
+
+            color: #7d94a8;
+
+            font-size: 13px;
+
+            margin: 0;
+        }
+
+
+        /* ================================
+           FOOTER
+        ================================= */
+
+        .footer {
+
+            border-top:
+                1px solid var(--line);
+
+            background: #030711;
+
+            padding:
+                45px 22px 22px;
+        }
+
+
+        .footer__inner {
+
+            max-width: 1200px;
+
+            margin: auto;
+
+            display: grid;
+
+            grid-template-columns:
+                1.5fr 1fr 1fr;
+
+            gap: 35px;
+        }
+
+
+        .footer__col {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 7px;
+        }
+
+
+        .footer__col h4 {
+
+            font:
+                600 13px "Space Grotesk";
+
+            margin:
+                0 0 7px;
+        }
+
+
+        .footer__col a,
+        .footer__col p {
+
+            font-size: 12px;
+
+            color: #71899e;
+
+            margin: 0;
+        }
+
+
+        .footer__col a:hover {
+
+            color: var(--cyan);
+        }
+
+
+        .footer__bottom {
+
+            max-width: 1200px;
+
+            margin:
+                35px auto 0;
+
+            padding-top: 18px;
+
+            border-top:
+                1px solid var(--line);
+
+            display: flex;
+
+            justify-content: space-between;
+
+            color: #526a80;
+
+            font-size: 10px;
+        }
+
+
+        .footer__note {
+
+            margin: 0;
+        }
+
+
+        /* ================================
+           TOAST
+        ================================= */
+
+        .toast {
+
+            position: fixed;
+
+            right: 22px;
+
+            bottom: 22px;
+
+            z-index: 2000;
+
+            background: #0c1a2a;
+
+            border:
+                1px solid rgba(87, 230, 255, .25);
+
+            box-shadow:
+                var(--shadow);
+
+            border-radius: 12px;
+
+            padding:
+                12px 15px;
+
+            color: #dffaff;
+
+            font-size: 12px;
+
+            transform:
+                translateY(20px);
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            transition: .25s;
+        }
+
+
+        .toast.show {
+
+            transform: none;
+
+            opacity: 1;
+        }
+
+
+        /* ================================
+           ANIMATIONS
+        ================================= */
+
+        @keyframes logoSpin {
+
+            to {
+
+                transform:
+                    rotateY(360deg) rotateZ(360deg);
+            }
+        }
+
+
+        @keyframes logoWobble {
+
+            0%,
+            100% {
+
+                transform:
+                    rotateX(-7deg) rotateY(-4deg);
+            }
+
+            50% {
+
+                transform:
+                    rotateX(10deg) rotateY(5deg);
+            }
+        }
+
+
+        @keyframes ringPulse {
+
+            0%,
+            100% {
+                opacity: .28;
+            }
+
+            50% {
+                opacity: .95;
+            }
+        }
+
+
+        @keyframes corePulse {
+
+            0%,
+            100% {
+
+                transform:
+                    translateZ(45px) scale(1);
+
+                opacity: .9;
+            }
+
+            50% {
+
+                transform:
+                    translateZ(52px) scale(1.38);
+
+                opacity: 1;
+            }
+        }
+
+
+        @keyframes scan {
+
+            0% {
+
+                transform:
+                    translateY(-120px);
+
+                opacity: 0;
+            }
+
+            15%,
+            85% {
+
+                opacity: 1;
+            }
+
+            100% {
+
+                transform:
+                    translateY(150px);
+
+                opacity: 0;
+            }
+        }
+
+
+        @keyframes wordGlow {
+
+            0%,
+            100% {
+                opacity: .72;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+
+        @keyframes edgePulse {
+
+            50% {
+                opacity: .35;
+            }
+        }
+
+
+        @keyframes nodePulse {
+
+            50% {
+                transform: scale(1.06);
+            }
+        }
+
+
+        @keyframes spin {
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+
+        @keyframes scrollDot {
+
+            0%,
+            100% {
+
+                transform:
+                    translateY(0);
+
+                opacity: .4;
+            }
+
+            50% {
+
+                transform:
+                    translateY(10px);
+
+                opacity: 1;
+            }
+        }
+
+
+        /* ================================
+           RESPONSIVE
+        ================================= */
+
+        @media(max-width:900px) {
+
+            .hero__inner {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .hero__visual--frontpage {
+
+                min-height: 430px;
+            }
+
+
+            .context-graph {
+
+                height: 440px;
+            }
+
+
+            .feature-grid {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+
+            .footer__inner {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+
+            .result-grid {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+
+            .report-header__row {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+
+            .tier-grid {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+        }
+
+
+        @media(max-width:640px) {
+
+            .navbar__inner {
+
+                padding:
+                    12px 15px;
+            }
+
+
+            .brand {
+
+                min-width: auto;
+            }
+
+
+            .brand__tagline {
+
+                display: none;
+            }
+
+
+            .nav {
+
+                position: absolute;
+
+                top: 65px;
+
+                left: 15px;
+
+                right: 15px;
+
+                display: none;
+
+                flex-direction: column;
+
+                align-items: stretch;
+
+                padding: 10px;
+
+                background: #07111f;
+
+                border:
+                    1px solid var(--line);
+
+                border-radius: 15px;
+            }
+
+
+            .nav.open {
+
+                display: flex;
+            }
+
+
+            .nav-toggle {
+
+                display: block;
+            }
+
+
+            .hero {
+
+                padding:
+                    105px 16px 50px;
+            }
+
+
+            .hero__inner {
+
+                gap: 10px;
+            }
+
+
+            .hero__title {
+
+                font-size: 43px;
+            }
+
+
+            .hero__visual--frontpage {
+
+                min-height: 360px;
+            }
+
+
+            .context-graph {
+
+                height: 350px;
+            }
+
+
+            .logo3d {
+
+                max-width: 155px;
+
+                max-height: 155px;
+            }
+
+
+            .report-control-grid {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .report-actions {
+
+                width: 100%;
+            }
+
+
+            .report-actions .btn {
+
+                flex: 1;
+            }
+
+
+            .report-header__row {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .result-grid {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .tier-grid {
+
+                grid-template-columns: 1fr 1fr;
+            }
+
+
+            .feature-grid,
+            .footer__inner {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .footer__bottom {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 7px;
+            }
+
+
+            .section {
+
+                padding:
+                    75px 16px;
+            }
+        }
+
+
+        @media(prefers-reduced-motion:reduce) {
+
+            *,
+            *::before,
+            *::after {
+
+                animation: none !important;
+
+                transition: none !important;
+
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         NAVIGATION
+    ====================================================== -->
+
+    <header class="navbar" id="navbar">
+
+        <div class="navbar__inner">
+
+
+            <!-- BRAND -->
+
+            <a href="#home" class="brand">
+
+                <span class="brand__mark" aria-hidden="true">
+
+                    <svg viewBox="0 0 32 32" width="30" height="30">
+
+                        <polygon points="16,2 29,9 29,23 16,30 3,23 3,9" fill="none" stroke="currentColor"
+                            stroke-width="1.6" />
+
+                        <circle cx="16" cy="16" r="3.2" fill="currentColor" />
+
+                        <line x1="16" y1="16" x2="16" y2="6.5" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
+
+                        <line x1="16" y1="16" x2="24.5" y2="20.5" stroke="currentColor" stroke-width="1.2"
+                            opacity="0.7" />
+
+                        <line x1="16" y1="16" x2="7.5" y2="20.5" stroke="currentColor" stroke-width="1.2"
+                            opacity="0.7" />
+
+                    </svg>
+
+                </span>
+
+
+                <span class="brand__text">
+
+                    <span class="brand__name">
+                        GADS
+                    </span>
+
+                    <span class="brand__tagline">
+                        Government Abuse Detection System For Social Media
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <!-- NAVIGATION -->
+
+            <nav class="nav" id="primary-nav">
+
+                <a href="#home" class="nav__link" data-nav>
+                    Home
+                </a>
+
+                <a href="#analysis" class="nav__link" data-nav>
+                    Analysis
+                </a>
+
+                <a href="#about" class="nav__link" data-nav>
+                    About Us
+                </a>
+
+                <a href="#contact" class="nav__link" data-nav>
+                    Contact Us
+                </a>
+
+            </nav>
+
+
+            <!-- MOBILE MENU -->
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="hero" id="home">
+
+        <div class="hero__inner">
+
+
+            <div class="hero__content">
+
+                <p class="eyebrow">
+
+                    <i class="fa-solid fa-cube"></i>
+
+                    GADS · LIVE 3D INTELLIGENCE CORE
+
+                    · Connected Model Dashboard
+
+                </p>
+
+
+                <h1 class="hero__title">
+
+                    Government Abuse Detection System For
+
+                    <span class="text-gradient">
+                        Social Media Monitoring
+                    </span>
+
+                </h1>
+
+
+                <p class="hero__subtitle">
+
+                    Government Abuse Detection System connects
+                    your social-media monitoring model with a
+                    web-based dashboard for report analysis,
+                    risk indication and human-review workflows.
+
+                </p>
+
+
+                <div class="hero__actions">
+
+                    <button class="btn btn--primary" id="startAnalysisBtn" type="button">
+
+                        <i class="fa-solid fa-magnifying-glass-chart">
+                        </i>
+
+                        Open Monitoring Dashboard
+
+                    </button>
+
+                </div>
+
+
+                <div class="hero__meta">
+
+                    <div class="meta-chip">
+
+                        <i class="fa-solid fa-database">
+                        </i>
+
+                        Model report integration
+
+                    </div>
+
+
+                    <div class="meta-chip">
+
+                        <i class="fa-brands fa-youtube">
+                        </i>
+
+                        YouTube monitoring
+
+                    </div>
+
+
+                    <div class="meta-chip">
+
+                        <i class="fa-solid fa-layer-group">
+                        </i>
+
+                        Tier classification
+
+                    </div>
+
+
+                    <div class="meta-chip">
+
+                        <i class="fa-solid fa-user-check">
+                        </i>
+
+                        Human review
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- 3D VISUAL -->
+
+            <div class="hero__visual hero__visual--frontpage"
+                aria-label="Live Government Abuse Detection System 3D context graph">
+
+                <div class="context-graph" id="contextGraph">
+
+
+                    <!-- 3D LOGO -->
+
+                    <div class="logo3d" id="logo3d" aria-hidden="true">
+
+                        <div class="logo3d__tilt" id="logo3dTilt">
+
+                            <div class="logo3d__scene">
+
+
+                                <div class="logo3d__ring logo3d__ring--a">
+                                </div>
+
+
+                                <div class="logo3d__ring logo3d__ring--b">
+                                </div>
+
+
+                                <div class="logo3d__spoke logo3d__spoke--1">
+                                </div>
+
+
+                                <div class="logo3d__spoke logo3d__spoke--2">
+                                </div>
+
+
+                                <div class="logo3d__spoke logo3d__spoke--3">
+                                </div>
+
+
+                                <div class="logo3d__hex logo3d__hex--back">
+
+                                    <svg viewBox="0 0 32 32">
+
+                                        <polygon points="16,2 29,9 29,23 16,30 3,23 3,9" fill="none"
+                                            stroke="currentColor" stroke-width="1.4" />
+
+                                    </svg>
+
+                                </div>
+
+
+                                <div class="logo3d__hex logo3d__hex--mid">
+
+                                    <svg viewBox="0 0 32 32">
+
+                                        <polygon points="16,2 29,9 29,23 16,30 3,23 3,9" fill="none"
+                                            stroke="currentColor" stroke-width="1.2" />
+
+                                    </svg>
+
+                                </div>
+
+
+                                <div class="logo3d__hex logo3d__hex--front">
+
+                                    <svg viewBox="0 0 32 32">
+
+                                        <polygon points="16,2 29,9 29,23 16,30 3,23 3,9" fill="none"
+                                            stroke="currentColor" stroke-width="1.6" />
+
+                                    </svg>
+
+                                </div>
+
+
+                                <div class="logo3d__scan">
+                                </div>
+
+
+                                <div class="logo3d__core">
+                                </div>
+
+
+                                <div class="logo3d__wordmark">
+                                    GADS
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONTEXT GRAPH -->
+
+                    <svg viewBox="0 0 420 420" class="context-graph__svg">
+
+                        <g class="graph-edges" id="graphEdges">
+                        </g>
+
+                        <g class="graph-nodes" id="graphNodes">
+                        </g>
+
+                    </svg>
+
+
+                    <span class="context-graph__label">
+
+                        <i class="fa-solid fa-circle">
+                        </i>
+
+                        government abuse graph — live simulation
+
+                        · GADS CORE ONLINE
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="hero__scrollcue" aria-hidden="true">
+
+            <span></span>
+
+        </div>
+
+    </section>
+
+    <!-- =====================================================
+         ANALYSIS / MONITORING
+    ====================================================== -->
+
+    <section class="section" id="analysis">
+
+        <div class="section__inner">
+
+
+            <div class="section__head">
+
+                <p class="eyebrow">
+
+                    Government Abuse Analysis
+
+                </p>
+
+
+                <h2 class="section__title">
+
+                    Social Media Monitoring Dashboard
+
+                </h2>
+
+
+                <p class="section__subtitle">
+
+                    Load the latest report generated by your
+                    monitoring model. The dashboard displays
+                    model-flagged content for human review.
+
+                </p>
+
+            </div>
+
+
+
+            <!-- REPORT CONTROL -->
+
+            <div class="analysis-panel">
+
+                <div class="report-control-grid">
+
+
+                    <div>
+
+                        <label for="reportQueryInput" class="control-label">
+
+                            Monitoring Query / Hashtag
+
+                        </label>
+
+
+                        <input type="text" id="reportQueryInput" class="report-query"
+                            placeholder="Example: NEET paper leak protest">
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="reportCommentsInput" class="control-label">
+
+                            Comments to Scan
+
+                        </label>
+
+
+                        <input type="number" id="reportCommentsInput" class="report-query" min="1" max="200" step="1"
+                            value="200">
+
+                    </div>
+
+
+                    <div class="report-actions">
+
+                        <button class="btn btn--primary" id="loadReportBtn" type="button">
+
+                            <i class="fa-solid fa-cloud-arrow-down">
+                            </i>
+
+                            Load Latest Model Report
+
+                        </button>
+
+
+                        <button class="btn btn--ghost" id="refreshReportBtn" type="button">
+
+                            <i class="fa-solid fa-rotate">
+                            </i>
+
+                            Refresh
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <p class="report-note">
+
+                    <i class="fa-solid fa-circle-info">
+                    </i>
+
+                    Results are model-generated indicators.
+                    Flagged content is presented for human review
+                    and is not treated as an automatic final judgment.
+
+                </p>
+
+            </div>
+
+
+
+            <!-- RESULTS -->
+
+            <div class="results" id="results">
+
+
+                <!-- EMPTY STATE -->
+
+                <div class="empty-state" id="emptyState">
+
+                    <div>
+
+                        <i class="fa-solid fa-chart-line">
+                        </i>
+
+                        <p>
+
+                            No monitoring report loaded yet.
+
+                            <br>
+
+                            Select
+
+                            <strong>
+                                Load Latest Model Report
+                            </strong>
+
+                            to connect the dashboard
+                            to your backend model report.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- LOADING STATE -->
+
+                <div class="loading-state hidden" id="loadingState">
+
+                    <div class="spinner">
+                    </div>
+
+                    <p>
+
+                        Loading Government Abuse Detection
+                        System model report…
+
+                    </p>
+
+                </div>
+
+
+
+                <!-- RESULT CONTENT -->
+
+                <div class="result-content hidden" id="resultContent">
+
+                    <!-- REPORT HEADER -->
+
+                    <div class="card report-header">
+
+
+                        <div class="report-header__title">
+
+                            <i class="fa-brands fa-youtube">
+                            </i>
+
+                            YouTube Social Media Monitoring Report
+
+                        </div>
+
+
+                        <div class="report-header__row">
+
+
+                            <div class="report-info">
+
+                                <span class="report-info__label">
+                                    Query / Hashtag
+                                </span>
+
+                                <span class="report-info__value" id="reportQuery">
+
+                                    —
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="report-info">
+
+                                <span class="report-info__label">
+                                    Source
+                                </span>
+
+                                <span class="report-info__value" id="reportSource">
+
+                                    YouTube Data API
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="report-info">
+
+                                <span class="report-info__label">
+                                    Review Policy
+                                </span>
+
+                                <span class="report-info__value" id="reviewStatus">
+
+                                    HUMAN REVIEW ONLY
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- MAIN STATISTICS -->
+
+                    <div class="result-grid" id="mainStats">
+
+
+                        <div class="card stat-card">
+
+                            <div class="stat-card__icon">
+
+                                <i class="fa-solid fa-comments">
+                                </i>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="stat-card__label">
+                                    Comments Scanned
+                                </span>
+
+                                <span class="stat-card__value" id="commentsScanned">
+                                    0
+                                </span>
+
+                                <span class="stat-card__hint">
+                                    YouTube comments
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="card stat-card">
+
+                            <div class="stat-card__icon">
+
+                                <i class="fa-solid fa-flag">
+                                </i>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="stat-card__label">
+                                    Flagged
+                                </span>
+
+                                <span class="stat-card__value" id="flaggedCount">
+                                    0
+                                </span>
+
+                                <span class="stat-card__hint">
+                                    Human review queue
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="card stat-card">
+
+                            <div class="stat-card__icon">
+
+                                <i class="fa-solid fa-circle-check">
+                                </i>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="stat-card__label">
+                                    Lawful / Neutral
+                                </span>
+
+                                <span class="stat-card__value" id="lawfulCount">
+                                    0
+                                </span>
+
+                                <span class="stat-card__hint">
+                                    Tier 1
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- TIER DISTRIBUTION -->
+
+                    <div class="card assessment-card" id="tierDistribution">
+
+                        <div class="assessment-card__head">
+
+                            <i class="fa-solid fa-layer-group">
+                            </i>
+
+                            <span>
+                                Tier Distribution
+                            </span>
+
+                        </div>
+
+
+                        <div class="tier-grid">
+
+
+                            <div class="tier-card tier-card--1">
+
+                                <span class="tier-card__label">
+                                    Tier 1 · Lawful / Neutral
+                                </span>
+
+                                <span class="tier-card__value" id="tier1Count">
+                                    0
+                                </span>
+
+                            </div>
+
+
+                            <div class="tier-card tier-card--2">
+
+                                <span class="tier-card__label">
+                                    Tier 2 · Abusive
+                                </span>
+
+                                <span class="tier-card__value" id="tier2Count">
+                                    0
+                                </span>
+
+                            </div>
+
+
+                            <div class="tier-card tier-card--3">
+
+                                <span class="tier-card__label">
+                                    Tier 3 · Incitement / High Risk
+                                </span>
+
+                                <span class="tier-card__value" id="tier3Count">
+                                    0
+                                </span>
+
+                            </div>
+
+
+                            <div class="tier-card tier-card--4">
+
+                                <span class="tier-card__label">
+                                    Tier 4 · Direct Threat
+                                </span>
+
+                                <span class="tier-card__value" id="tier4Count">
+                                    0
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- RISK -->
+
+                    <div class="card assessment-card" id="socialAssessment">
+
+
+                        <div class="assessment-card__head">
+
+                            <i class="fa-solid fa-gauge-high">
+                            </i>
+
+                            <span>
+                                Social Impact Assessment
+                            </span>
+
+                        </div>
+
+
+                        <div class="assessment-card__row">
+
+                            <span class="assessment-card__key">
+
+                                Risk Level
+
+                            </span>
+
+
+                            <span class="badge" id="riskBadge">
+
+                                —
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="assessment-card__bar">
+
+                            <div class="assessment-card__bar-fill" id="riskBarFill">
+                            </div>
+
+                        </div>
+
+
+                        <p class="assessment-card__disclaimer" id="socialImpact">
+
+                            —
+
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- FLAGGED CONTENT -->
+
+                    <div class="card table-card" id="flaggedContent">
+
+
+                        <div class="table-card__head">
+
+                            <h3>
+
+                                Flagged Content — Human Review
+
+                            </h3>
+
+
+                            <span class="table-card__count" id="flaggedTableCount">
+
+                                0 comments
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="table-wrap">
+
+
+                            <table class="detect-table" id="flaggedTable">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>
+                                            Tier
+                                        </th>
+
+                                        <th>
+                                            Video
+                                        </th>
+
+                                        <th>
+                                            User
+                                        </th>
+
+                                        <th>
+                                            Comment
+                                        </th>
+
+                                        <th>
+                                            Reason
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody id="flaggedTableBody">
+                                </tbody>
+
+                            </table>
+
+
+                            <p class="table-empty hidden" id="tableEmptyMsg">
+
+                                No flagged content returned
+                                by the model report.
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         ABOUT
+    ====================================================== -->
+
+    <section class="section section--alt" id="about">
+
+        <div class="section__inner">
+
+
+            <div class="section__head">
+
+                <p class="eyebrow">
+
+                    About Government Abuse Detection System
+
+                </p>
+
+
+                <h2 class="section__title">
+
+                    A government-focused social-media
+                    monitoring system
+
+                </h2>
+
+
+                <p class="section__subtitle">
+
+                    Government Abuse Detection System is a
+                    context-aware language analysis concept
+                    designed to help identify potentially harmful,
+                    abusive, slang and threatening language
+                    appearing in written social-media content.
+
+                    It is intended to support responsible digital
+                    monitoring, content analysis and early
+                    identification of potentially harmful language
+                    as a decision-support tool rather than an
+                    automated authority.
+
+                </p>
+
+            </div>
+
+
+
+            <div class="feature-grid">
+
+
+                <div class="card feature-card">
+
+                    <div class="feature-card__icon">
+
+                        <i class="fa-solid fa-diagram-project">
+                        </i>
+
+                    </div>
+
+
+                    <h3>
+                        Context Awareness
+                    </h3>
+
+
+                    <p>
+
+                        Analyzes language in relation to
+                        surrounding content rather than judging
+                        individual words in isolation.
+
+                    </p>
+
+                </div>
+
+
+
+                <div class="card feature-card">
+
+                    <div class="feature-card__icon">
+
+                        <i class="fa-solid fa-language">
+                        </i>
+
+                    </div>
+
+
+                    <h3>
+                        Language Intelligence
+                    </h3>
+
+
+                    <p>
+
+                        Identifies slang, offensive and potentially
+                        harmful expressions using the model's
+                        analysis pipeline.
+
+                    </p>
+
+                </div>
+
+
+
+                <div class="card feature-card">
+
+                    <div class="feature-card__icon">
+
+                        <i class="fa-solid fa-user-check">
+                        </i>
+
+                    </div>
+
+
+                    <h3>
+                        Human Review
+                    </h3>
+
+
+                    <p>
+
+                        Model-flagged content is presented for
+                        human review instead of being treated as
+                        an automatic final judgment.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="footer">
+
+        <div class="footer__inner">
+
+
+            <div class="footer__brand">
+
+                <span class="brand__name">
+                    GADS
+                </span>
+
+                <p class="brand__tagline">
+
+                    Government Abuse Detection System
+                    For Social Media
+
+                </p>
+
+            </div>
+
+
+
+            <div class="footer__col">
+
+                <h4>
+                    Navigate
+                </h4>
+
+                <a href="#home">
+                    Home
+                </a>
+
+                <a href="#analysis">
+                    Analysis
+                </a>
+
+                <a href="#about">
+                    About Us
+                </a>
+
+                <a href="#contact">
+                    Contact Us
+                </a>
+
+            </div>
+
+
+
+            <div class="footer__col">
+
+                <h4>
+                    Contact Details
+                </h4>
+
+                <p>
+
+                    <i id="contact"></i>
+
+                    <a href="mailto:gads.project@gmail.com">
+
+                        gads.project@gmail.com
+
+                    </a>
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer__bottom">
+
+            <p>
+
+                © 2026 Government Abuse Detection System.
+                All Rights Reserved.
+
+            </p>
+
+
+            <p class="footer__note">
+
+                Built as an academic/hackathon prototype.
+
+            </p>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+
+                /* ==========================================
+                   HELPER FUNCTIONS
+                ========================================== */
+
+                const $ =
+                    selector =>
+                        document.querySelector(selector);
+
+
+                const $$ =
+                    selector =>
+                        document.querySelectorAll(selector);
+
+
+
+                /* ==========================================
+                   MOBILE NAVIGATION
+                ========================================== */
+
+                const nav =
+                    $("#primary-nav");
+
+                const toggle =
+                    $("#navToggle");
+
+
+                toggle?.addEventListener(
+                    "click",
+                    () => {
+
+                        const open =
+                            nav.classList.toggle("open");
+
+                        toggle.setAttribute(
+                            "aria-expanded",
+                            String(open)
+                        );
+
+                    }
+                );
+
+
+                $$(".nav__link")
+                    .forEach(
+                        link => {
+
+                            link.addEventListener(
+                                "click",
+                                () => {
+
+                                    nav.classList.remove(
+                                        "open"
+                                    );
+
+                                    toggle?.setAttribute(
+                                        "aria-expanded",
+                                        "false"
+                                    );
+
+                                }
+                            );
+
+                        }
+                    );
+
+
+
+                /* ==========================================
+                   ACTIVE NAVIGATION
+                ========================================== */
+
+                const sections =
+                    [...$$("section[id]")];
+
+                const links =
+                    [...$$("[data-nav]")];
+
+
+                if (
+                    "IntersectionObserver"
+                    in window
+                ) {
+
+                    const observer =
+                        new IntersectionObserver(
+                            entries => {
+
+                                entries.forEach(
+                                    entry => {
+
+                                        if (
+                                            entry.isIntersecting
+                                        ) {
+
+                                            links.forEach(
+                                                link => {
+
+                                                    link.classList.toggle(
+                                                        "active",
+
+                                                        link.getAttribute(
+                                                            "href"
+                                                        ) ===
+                                                        `#${entry.target.id}`
+                                                    );
+
+                                                }
+                                            );
+
+                                        }
+
+                                    }
+                                );
+                            },
+                            {
+                                rootMargin:
+                                    "-35% 0px -55% 0px"
+                            }
+                        );
+
+
+                    sections.forEach(
+                        section =>
+                            observer.observe(section)
+                    );
+
+                }
+
+
+
+                /* ==========================================
+                   START ANALYSIS BUTTON
+                ========================================== */
+
+                $("#startAnalysisBtn")
+                    ?.addEventListener(
+                        "click",
+                        () => {
+
+                            $("#analysis")
+                                ?.scrollIntoView({
+                                    behavior: "smooth"
+                                });
+
+                        }
+                    );
+
+
+
+                /* ==========================================
+                   TOAST
+                ========================================== */
+
+                function showToast(message) {
+
+                    let toast =
+                        $("#toast");
+
+
+                    if (!toast) {
+
+                        toast =
+                            document.createElement(
+                                "div"
+                            );
+
+                        toast.id =
+                            "toast";
+
+                        toast.className =
+                            "toast";
+
+                        document.body.appendChild(
+                            toast
+                        );
+
+                    }
+
+
+                    toast.textContent =
+                        message;
+
+
+                    toast.classList.add(
+                        "show"
+                    );
+
+
+                    clearTimeout(
+                        showToast.timer
+                    );
+
+
+                    showToast.timer =
+                        setTimeout(
+                            () => {
+
+                                toast.classList.remove(
+                                    "show"
+                                );
+
+                            },
+                            2600
+                        );
+
+                }
+
+
+
+                /* ==========================================
+                   HTML ESCAPING
+                ========================================== */
+
+                function escapeHtml(value) {
+
+                    return String(
+                        value ?? ""
+                    )
+                        .replace(
+                            /&/g,
+                            "&amp;"
+                        )
+                        .replace(
+                            /</g,
+                            "&lt;"
+                        )
+                        .replace(
+                            />/g,
+                            "&gt;"
+                        )
+                        .replace(
+                            /"/g,
+                            "&quot;"
+                        )
+                        .replace(
+                            /'/g,
+                            "&#039;"
+                        );
+
+                }
+
+
+
+                /* ==========================================
+                   REPORT ELEMENTS
+                ========================================== */
+
+                const loadReportBtn =
+                    $("#loadReportBtn");
+
+
+                const refreshReportBtn =
+                    $("#refreshReportBtn");
+
+
+                const reportQueryInput =
+                    $("#reportQueryInput");
+
+
+                const empty =
+                    $("#emptyState");
+
+
+                const loading =
+                    $("#loadingState");
+
+
+                const content =
+                    $("#resultContent");
+
+
+
+                /* ==========================================
+                   REPORT LOADING STATE
+                ========================================== */
+
+                function showReportLoading() {
+
+                    empty?.classList.add(
+                        "hidden"
+                    );
+
+
+                    content?.classList.add(
+                        "hidden"
+                    );
+
+
+                    loading?.classList.remove(
+                        "hidden"
+                    );
+
+                }
+
+
+
+                /* ==========================================
+                   SHOW REPORT
+                ========================================== */
+
+                function showReport() {
+
+                    loading?.classList.add(
+                        "hidden"
+                    );
+
+
+                    empty?.classList.add(
+                        "hidden"
+                    );
+
+
+                    content?.classList.remove(
+                        "hidden"
+                    );
+
+                }
+
+
+
+                /* ==========================================
+                   TIER CLASS
+                ========================================== */
+
+                function getTierClass(tier) {
+
+                    const number =
+                        Number(tier);
+
+
+                    if (number === 4)
+                        return "tier-4";
+
+
+                    if (number === 3)
+                        return "tier-3";
+
+
+                    if (number === 2)
+                        return "tier-2";
+
+
+                    return "tier-1";
+
+                }
+
+
+
+                /* ==========================================
+                   RENDER REPORT
+                ========================================== */
+
+                function renderReport(report) {
+
+                    showReport();
+
+                    /* --------------------------------------
+                       QUERY
+                    -------------------------------------- */
+
+                    const query =
+                        $("#reportQuery");
+
+
+                    const queryValue =
+                        report.query ||
+                        reportQueryInput?.value ||
+                        "Unknown";
+
+
+                    if (query) {
+
+                        query.textContent =
+                            queryValue;
+
+                    }
+
+
+                    if (
+                        reportQueryInput &&
+                        report.query
+                    ) {
+
+                        reportQueryInput.value =
+                            report.query;
+
+                    }
+
+
+
+                    /* --------------------------------------
+                       SOURCE
+                    -------------------------------------- */
+
+                    const source =
+                        $("#reportSource");
+
+
+                    if (source) {
+
+                        source.textContent =
+                            report.source ||
+                            "YouTube Data API";
+
+                    }
+
+
+
+                    /* --------------------------------------
+                       REVIEW POLICY
+                    -------------------------------------- */
+
+                    const review =
+                        $("#reviewStatus");
+
+
+                    if (review) {
+
+                        review.textContent =
+                            report.humanReviewOnly
+                                ? "HUMAN REVIEW ONLY"
+                                : "REVIEW REQUIRED";
+
+                    }
+
+
+
+                    /* --------------------------------------
+                       MAIN COUNTS
+                    -------------------------------------- */
+
+                    const scanned =
+                        $("#commentsScanned");
+
+
+                    if (scanned) {
+
+                        scanned.textContent =
+                            report.commentsScanned ??
+                            0;
+
+                    }
+
+
+                    const flagged =
+                        $("#flaggedCount");
+
+
+                    if (flagged) {
+
+                        flagged.textContent =
+                            report.flagged ??
+                            0;
+
+                    }
+
+
+                    const lawful =
+                        $("#lawfulCount");
+
+
+                    if (lawful) {
+
+                        lawful.textContent =
+                            report.lawful ??
+                            0;
+
+                    }
+
+
+
+                    /* --------------------------------------
+                       TIER COUNTS
+                    -------------------------------------- */
+
+                    const tierStats =
+                        report.tierStats || {};
+
+                    const totalComments =
+                        Number(report.commentsScanned || 0);
+
+                    const formatTierCount = (value) => {
+                        const count = Number(value || 0);
+                        const percentage = totalComments
+                            ? ((count / totalComments) * 100).toFixed(1)
+                            : "0.0";
+                        return `${count} (${percentage}%)`;
+                    };
+
+
+                    const tier1 =
+                        $("#tier1Count");
+
+
+                    if (tier1) {
+
+                        tier1.textContent =
+                            formatTierCount(tierStats.tier1);
+
+                    }
+
+
+                    const tier2 =
+                        $("#tier2Count");
+
+
+                    if (tier2) {
+
+                        tier2.textContent =
+                            formatTierCount(tierStats.tier2);
+
+                    }
+
+
+                    const tier3 =
+                        $("#tier3Count");
+
+
+                    if (tier3) {
+
+                        tier3.textContent =
+                            formatTierCount(tierStats.tier3);
+
+                    }
+
+
+                    const tier4 =
+                        $("#tier4Count");
+
+
+                    if (tier4) {
+
+                        tier4.textContent =
+                            formatTierCount(tierStats.tier4);
+
+                    }
+
+
+
+                    /* --------------------------------------
+                       RISK
+                    -------------------------------------- */
+
+                    const risk =
+                        report.riskLevel ||
+                        "Unknown";
+
+
+                    const riskBadge =
+                        $("#riskBadge");
+
+
+                    if (riskBadge) {
+
+                        riskBadge.textContent =
+                            risk;
+
+
+                        const riskText =
+                            String(
+                                risk
+                            ).toLowerCase();
+
+
+                        if (
+                            riskText === "high"
+                        ) {
+
+                            riskBadge.style.color =
+                                "#ff91a5";
+
+                            riskBadge.style.background =
+                                "rgba(255,92,122,.12)";
+
+                        }
+
+                        else if (
+                            riskText === "moderate" ||
+                            riskText === "medium"
+                        ) {
+
+                            riskBadge.style.color =
+                                "#ffd166";
+
+                            riskBadge.style.background =
+                                "rgba(255,209,102,.12)";
+
+                        }
+
+                        else if (
+                            riskText === "low"
+                        ) {
+
+                            riskBadge.style.color =
+                                "#43e6a0";
+
+                            riskBadge.style.background =
+                                "rgba(67,230,160,.12)";
+
+                        }
+
+                        else {
+
+                            riskBadge.style.color =
+                                "#9db1c2";
+
+                            riskBadge.style.background =
+                                "transparent";
+
+                        }
+
+                    }
+
+
+
+                    /* --------------------------------------
+                       RISK BAR
+                    -------------------------------------- */
+
+                    let riskScore = 0;
+
+
+                    if (
+                        Number(
+                            report.commentsScanned
+                        ) > 0
+                    ) {
+
+                        riskScore =
+                            Math.round(
+                                (
+                                    Number(
+                                        report.flagged
+                                    ) /
+                                    Number(
+                                        report.commentsScanned
+                                    )
+                                ) * 100
+                            );
+
+                    }
+
+
+                    const riskBar =
+                        $("#riskBarFill");
+
+
+                    if (riskBar) {
+
+                        riskBar.style.width =
+                            Math.min(
+                                Math.max(
+                                    riskScore,
+                                    0
+                                ),
+                                100
+                            ) + "%";
+
+                    }
+
+
+
+                    /* --------------------------------------
+                       SOCIAL IMPACT
+                    -------------------------------------- */
+
+                    const socialImpact =
+                        $("#socialImpact");
+
+
+                    if (socialImpact) {
+
+                        socialImpact.textContent =
+                            report.socialImpactAssessment ||
+                            (Number(report.commentsScanned || 0) === 0
+                                ? "No comments were available for this hashtag. Try a broader search or a different hashtag."
+                                : `Based on ${report.commentsScanned || 0
+                                } comments, ${report.flagged || 0
+                                } were flagged for human review.`);
+
+                    }
+
+
+
+                    /* --------------------------------------
+                       FLAGGED COMMENTS
+                    -------------------------------------- */
+
+                    const tableBody =
+                        $("#flaggedTableBody");
+
+
+                    const tableCount =
+                        $("#flaggedTableCount");
+
+
+                    const tableEmpty =
+                        $("#tableEmptyMsg");
+
+
+                    if (!tableBody) {
+
+                        console.error(
+                            "flaggedTableBody was not found."
+                        );
+
+                        return;
+
+                    }
+
+
+                    tableBody.innerHTML =
+                        "";
+
+
+                    const comments =
+                        Array.isArray(
+                            report.flaggedComments
+                        )
+                            ? report.flaggedComments
+                            : [];
+
+
+                    comments.forEach(
+                        item => {
+
+                            const row =
+                                document.createElement(
+                                    "tr"
+                                );
+
+
+                            const videoTitle =
+                                item.videoTitle ||
+                                "Unknown video";
+
+
+                            const videoUrl =
+                                item.videoUrl ||
+                                "";
+
+
+                            const videoCell =
+                                videoUrl
+
+                                    ?
+
+                                    `
+                                <a
+                                    href="${escapeHtml(videoUrl)}"
+                                    target="_blank"
+                                    rel="noopener noreferrer">
+
+                                    ${escapeHtml(videoTitle)}
+
+                                </a>
+                                `
+
+                                    :
+
+                                    escapeHtml(
+                                        videoTitle
+                                    );
+
+
+                            row.innerHTML = `
+
+                                <td>
+
+                                    <span
+                                        class="term-badge ${getTierClass(item.tier)}">
+
+                                        Tier
+                                        ${escapeHtml(item.tier)}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    ${videoCell}
+
+                                </td>
+
+
+                                <td>
+
+                                    ${escapeHtml(
+                                item.user ||
+                                "Unknown"
+                            )}
+
+                                </td>
+
+
+                                <td
+                                    style="
+                                        white-space:pre-wrap;
+                                        min-width:320px;
+                                    ">
+
+                                    ${escapeHtml(
+                                item.comment ||
+                                ""
+                            )}
+
+                                </td>
+
+
+                                <td>
+
+                                    ${escapeHtml(
+                                item.reason ||
+                                "Model flagged content for review."
+                            )}
+
+                                </td>
+
+                            `;
+
+
+                            tableBody.appendChild(
+                                row
+                            );
+
+                        }
+                    );
+
+
+                    if (tableCount) {
+
+                        tableCount.textContent =
+                            `${comments.length} flagged comments`;
+
+                    }
+
+
+                    if (tableEmpty) {
+
+                        tableEmpty.classList.toggle(
+                            "hidden",
+                            comments.length > 0
+                        );
+
+                    }
+
+                }
+
+
+
+                /* ==========================================
+                   LOAD REPORT
+                ========================================== */
+
+                async function loadLatestReport() {
+
+                    try {
+
+                        showReportLoading();
+
+                        // Show a live countdown so the user knows it's working
+                        const loadingEl = document.getElementById("loadingState");
+                        let elapsed = 0;
+                        const timerInterval = setInterval(() => {
+                            elapsed++;
+                            if (loadingEl) {
+                                const msg = loadingEl.querySelector(".loading-msg") || (() => {
+                                    const el = document.createElement("p");
+                                    el.className = "loading-msg";
+                                    el.style.cssText = "margin-top:12px;color:#57e6ff;font-size:0.85rem;";
+                                    loadingEl.appendChild(el);
+                                    return el;
+                                })();
+                                msg.textContent = `⏳ Fetching YouTube comments & running AI analysis... ${elapsed}s`;
+                            }
+                        }, 1000);
+
+                        const queryInput = document.getElementById("reportQueryInput");
+                        const query = queryInput ? queryInput.value.trim() : "";
+                        const commentsInput = document.getElementById("reportCommentsInput");
+                        const requestedComments = Math.min(200, Math.max(1, Number.parseInt(commentsInput?.value || "200", 10) || 200));
+                        let url = "/api/report";
+                        if (query) {
+                            url += "?query=" + encodeURIComponent(query) + "&comments=" + requestedComments;
+                        }
+
+                        // 3-minute timeout — the AI pipeline can be slow
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 180000);
+
+                        const response =
+                            await fetch(
+                                url,
+                                {
+                                    method: "GET",
+                                    signal: controller.signal,
+                                    headers: {
+                                        "Accept":
+                                            "application/json"
+                                    }
+                                }
+                            );
+
+                        clearTimeout(timeoutId);
+                        clearInterval(timerInterval);
+
+
+                        let data;
+
+
+                        try {
+
+                            data =
+                                await response.json();
+
+                        }
+
+                        catch {
+
+                            throw new Error(
+                                "Backend returned invalid JSON."
+                            );
+
+                        }
+
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                data.error ||
+                                "Unable to load model report."
+                            );
+
+                        }
+
+
+                        console.log(
+                            "GADS MODEL REPORT:",
+                            data
+                        );
+
+
+                        renderReport(
+                            data
+                        );
+
+
+                        showToast(
+                            "Model report loaded successfully."
+                        );
+
+                    }
+
+
+                    catch (error) {
+
+                        // Stop the loading timer
+                        if (typeof timerInterval !== "undefined") clearInterval(timerInterval);
+
+                        console.error(
+                            "GADS REPORT ERROR:",
+                            error
+                        );
+
+
+
+                        loading?.classList.add(
+                            "hidden"
+                        );
+
+
+                        empty?.classList.remove(
+                            "hidden"
+                        );
+
+
+                        if (empty) {
+
+                            empty.innerHTML = `
+
+                                <div>
+
+                                    <i
+                                        class="fa-solid fa-triangle-exclamation">
+                                    </i>
+
+                                    <p>
+
+                                        <strong>
+                                            Report loading failed
+                                        </strong>
+
+                                        <br><br>
+
+                                        ${escapeHtml(
+                                error.message
+                            )}
+
+                                        <br><br>
+
+                                        Make sure the backend is running
+                                        and
+                                        <code>
+                                            /api/report
+                                        </code>
+                                        is available.
+
+                                    </p>
+
+                                </div>
+
+                            `;
+
+                        }
+
+                    }
+
+                }
+
+
+
+                /* ==========================================
+                   LOAD BUTTON
+                ========================================== */
+
+                loadReportBtn?.addEventListener(
+                    "click",
+                    loadLatestReport
+                );
+
+
+
+                /* ==========================================
+                   REFRESH BUTTON
+                ========================================== */
+
+                refreshReportBtn?.addEventListener(
+                    "click",
+                    loadLatestReport
+                );
+
+
+
+                /* ==========================================
+                   3D CONTEXT GRAPH
+                ========================================== */
+
+                const svg =
+                    $("#contextGraph svg");
+
+
+                const edges =
+                    $("#graphEdges");
+
+
+                const nodes =
+                    $("#graphNodes");
+
+
+                if (
+                    svg &&
+                    edges &&
+                    nodes
+                ) {
+
+                    const center =
+                    {
+                        x: 210,
+                        y: 210
+                    };
+
+
+                    const graphData = [
+
+                        {
+                            x: 210,
+                            y: 210,
+                            label: "GADS CORE",
+                            hot: false
+                        },
+
+                        {
+                            x: 100,
+                            y: 100,
+                            label: "government",
+                            hot: false
+                        },
+
+                        {
+                            x: 320,
+                            y: 90,
+                            label: "official",
+                            hot: false
+                        },
+
+                        {
+                            x: 85,
+                            y: 285,
+                            label: "abuse",
+                            hot: true
+                        },
+
+                        {
+                            x: 330,
+                            y: 285,
+                            label: "risk",
+                            hot: true
+                        },
+
+                        {
+                            x: 210,
+                            y: 65,
+                            label: "entity",
+                            hot: false
+                        },
+
+                        {
+                            x: 210,
+                            y: 355,
+                            label: "sentiment",
+                            hot: false
+                        },
+
+                        {
+                            x: 55,
+                            y: 195,
+                            label: "threat",
+                            hot: true
+                        },
+
+                        {
+                            x: 365,
+                            y: 190,
+                            label: "public",
+                            hot: true
+                        }
+
+                    ];
+
+
+                    graphData
+                        .slice(1)
+                        .forEach(
+                            (node, index) => {
+
+                                const line =
+                                    document.createElementNS(
+                                        "http://www.w3.org/2000/svg",
+                                        "line"
+                                    );
+
+
+                                line.setAttribute(
+                                    "x1",
+                                    center.x
+                                );
+
+
+                                line.setAttribute(
+                                    "y1",
+                                    center.y
+                                );
+
+
+                                line.setAttribute(
+                                    "x2",
+                                    node.x
+                                );
+
+
+                                line.setAttribute(
+                                    "y2",
+                                    node.y
+                                );
+
+
+                                line.classList.add(
+                                    "graph-edge"
+                                );
+
+
+                                line.style.animationDelay =
+                                    (index * .25) +
+                                    "s";
+
+
+                                edges.appendChild(
+                                    line
+                                );
+
+                            }
+                        );
+
+
+                    graphData.forEach(
+                        (node, index) => {
+
+                            const group =
+                                document.createElementNS(
+                                    "http://www.w3.org/2000/svg",
+                                    "g"
+                                );
+
+
+                            const circle =
+                                document.createElementNS(
+                                    "http://www.w3.org/2000/svg",
+                                    "circle"
+                                );
+
+
+                            circle.setAttribute(
+                                "cx",
+                                node.x
+                            );
+
+
+                            circle.setAttribute(
+                                "cy",
+                                node.y
+                            );
+
+
+                            circle.setAttribute(
+                                "r",
+                                index === 0
+                                    ? 22
+                                    : 10
+                            );
+
+
+                            circle.classList.add(
+                                "graph-node"
+                            );
+
+
+                            if (node.hot) {
+
+                                circle.classList.add(
+                                    "hot"
+                                );
+
+                            }
+
+
+                            const text =
+                                document.createElementNS(
+                                    "http://www.w3.org/2000/svg",
+                                    "text"
+                                );
+
+
+                            text.setAttribute(
+                                "x",
+                                node.x
+                            );
+
+
+                            text.setAttribute(
+                                "y",
+                                node.y +
+                                (
+                                    index === 0
+                                        ? 38
+                                        : 25
+                                )
+                            );
+
+
+                            text.setAttribute(
+                                "text-anchor",
+                                "middle"
+                            );
+
+
+                            text.classList.add(
+                                "graph-label"
+                            );
+
+
+                            text.textContent =
+                                node.label;
+
+
+                            group.append(
+                                circle,
+                                text
+                            );
+
+
+                            nodes.appendChild(
+                                group
+                            );
+
+                        }
+                    );
+
+
+                    /* 3D TILT */
+
+                    const logo =
+                        $("#logo3d");
+
+
+                    let tx = 0;
+
+                    let ty = 0;
+
+                    let cx = 0;
+
+                    let cy = 0;
+
+
+                    function moveGraph(
+                        x,
+                        y
+                    ) {
+
+                        const rect =
+                            svg.getBoundingClientRect();
+
+
+                        tx =
+                            (
+                                (
+                                    y -
+                                    rect.top
+                                ) /
+                                rect.height -
+                                .5
+                            ) *
+                            -18;
+
+
+                        ty =
+                            (
+                                (
+                                    x -
+                                    rect.left
+                                ) /
+                                rect.width -
+                                .5
+                            ) *
+                            24;
+
+                    }
+
+
+                    svg.addEventListener(
+                        "mousemove",
+                        event => {
+
+                            moveGraph(
+                                event.clientX,
+                                event.clientY
+                            );
+
+                        }
+                    );
+
+
+                    svg.addEventListener(
+                        "mouseleave",
+                        () => {
+
+                            tx = 0;
+
+                            ty = 0;
+
+                        }
+                    );
+
+
+                    function tick() {
+
+                        cx +=
+                            (tx - cx) *
+                            .08;
+
+
+                        cy +=
+                            (ty - cy) *
+                            .08;
+
+
+                        if (logo) {
+
+                            logo.style.transform =
+                                `translate(-50%,-50%)
+                                 rotateX(${cx}deg)
+                                 rotateY(${cy}deg)`;
+
+                        }
+
+
+                        requestAnimationFrame(
+                            tick
+                        );
+
+                    }
+
+
+                    if (
+                        !matchMedia(
+                            "(prefers-reduced-motion: reduce)"
+                        ).matches
+                    ) {
+
+                        tick();
+
+                    }
+
+                }
+
+            }
+
+        );
+
+    </script>
+
+
+</body>
+
+</html>

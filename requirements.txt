@@ -1,8 +1,12 @@
 fastapi
 uvicorn
+flask
+flask-cors
 transformers
 torch
 joblib
 scikit-learn
 youtube-search-python
 google-api-python-client
+google-genai
+python-dotenv

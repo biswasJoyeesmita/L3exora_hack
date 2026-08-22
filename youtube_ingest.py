@@ -1,5 +1,6 @@
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
@@ -11,7 +12,7 @@ from dotenv import load_dotenv
 # .env must be in .gitignore so it never gets committed to GitHub.
 load_dotenv()
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
-import classify_local as classify
+import classify
 TIER_LABELS = {
     1: "Lawful / Neutral",
     2: "Abusive / Disrespectful",
@@ -42,32 +43,39 @@ def fetch_youtube_comments(query, max_videos=3, max_comments_per_video=10):
         order="relevance"
     ).execute()
 
-    extracted_comments = []
-
-    for video_item in search_response.get("items", []):
+    def fetch_video_comments(video_item):
         video_id = video_item["id"]["videoId"]
         video_title = video_item["snippet"]["title"]
 
         try:
+            video_youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
             # 2. Fetch public comments for each video
-            comment_response = youtube.commentThreads().list(
+            comment_response = video_youtube.commentThreads().list(
                 part="snippet",
                 videoId=video_id,
                 maxResults=max_comments_per_video,
                 textFormat="plainText"
             ).execute()
 
+            video_comments = []
             for item in comment_response.get("items", []):
                 comment_data = item["snippet"]["topLevelComment"]["snippet"]
-                extracted_comments.append({
+                video_comments.append({
                     "video_id": video_id,
                     "video_title": video_title,
                     "username": comment_data["authorDisplayName"],
                     "text": comment_data["textDisplay"]
                 })
+            return video_comments
         except Exception:
             # Handles videos with comments disabled gracefully
-            continue
+            return []
+
+    video_items = search_response.get("items", [])
+    with ThreadPoolExecutor(max_workers=min(10, max(1, len(video_items)))) as executor:
+        comment_groups = executor.map(fetch_video_comments, video_items)
+
+    extracted_comments = [comment for group in comment_groups for comment in group]
 
     return extracted_comments
 
@@ -142,7 +150,7 @@ Be factual, neutral, and professional. Do not name individuals. End with a one-l
         )
 
 
-def build_report(query, comments, results):
+def build_report(query, comments, results, social_impact=None):
     """
     Clean production-ready report:
     - ONLY flagged (Tier 2/3/4) comments printed — no lawful clutter
@@ -225,8 +233,11 @@ def build_report(query, comments, results):
     lines.append("=" * 100)
     lines.append("  SOCIAL IMPACT ASSESSMENT  (AI-Generated)")
     lines.append("=" * 100)
-    print("\n  [Generating social impact summary via Gemini...]")
-    summary = generate_social_impact_summary(query, comments, results)
+    if social_impact is None:
+        print("\n  [Generating social impact summary via Gemini...]")
+        summary = generate_social_impact_summary(query, comments, results)
+    else:
+        summary = social_impact
     for para in summary.split("\n"):
         if para.strip():
             for wrapped_line in textwrap.wrap(para.strip(), width=94):
@@ -297,7 +308,13 @@ def run_live_pipeline(query, max_videos=8, max_comments_per_video=15):
     print("============================================================")
 
     report = build_report(query, comments, results)
-    output_path = "youtube_feed_report.txt"
+
+    # Write report to the shared model-output folder that the Node.js backend reads from
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_output_dir = os.path.join(script_dir, "..", "model-output")
+    os.makedirs(model_output_dir, exist_ok=True)
+
+    output_path = os.path.join(model_output_dir, "youtube_feed_report.txt")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(report)
     print(f"\nFull structured report written to {output_path}")

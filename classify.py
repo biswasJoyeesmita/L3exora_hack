@@ -41,8 +41,8 @@ MODEL = "gemini-3.5-flash-lite"
 # Free-tier Gemini keys are typically capped at a low requests-per-minute
 # limit. We space calls out and retry with backoff on 429s instead of
 # letting the whole pipeline die on the first rate-limit hit.
-MIN_SECONDS_BETWEEN_CALLS = 4.0   # ~15 req/min, safely under most free caps
-MAX_RETRIES = 5
+MIN_SECONDS_BETWEEN_CALLS = 1.0   # ~60 req/min for fast live demo responses
+MAX_RETRIES = 2
 _last_call_time = [0.0]
 
 
@@ -66,9 +66,14 @@ Be especially careful with:
 Classify the sentence into exactly one tier:
 1 = benign / lawful criticism (including harsh but legal criticism of policy), support/praise, or unrelated/normal talk
 2 = abusive or disrespectful language directed at a government target
-3 = hate speech or incitement against a government target
+3 = hate speech, dehumanizing group attacks, or incitement to widespread unrest/violence against a government target
 4 = direct threat of violence against a government target
 5 = likely coordinated misinformation about government
+
+Use tier 2 for an insult, profanity, mockery, or disrespect aimed at one target.
+Use tier 3 for calls to revolution, rebellion, riots, taking up arms, collective violence,
+dehumanizing attacks on a protected group, or language urging many people to attack or overthrow targets.
+Lawful criticism, demands for resignation, and peaceful protest remain tier 1.
 
 Respond ONLY with JSON, no other text:
 {{
@@ -95,6 +100,28 @@ Respond ONLY with JSON, no other text:
 }}
 
 Sentence: {text}
+"""
+
+BATCH_PROMPT = """You are analyzing multiple YouTube comments about government policy or public affairs.
+Classify each complete comment in context. Do not judge slang or isolated words without considering the whole comment.
+
+Use exactly one tier:
+1 = benign / lawful criticism, support, praise, or unrelated talk
+2 = abusive or disrespectful language directed at a government target
+3 = hate speech, dehumanizing group attacks, or incitement to widespread unrest/violence against a government target
+4 = direct threat of violence against a government target
+5 = likely coordinated misinformation about government
+
+Use tier 2 for an insult, profanity, mockery, or disrespect aimed at one target.
+Use tier 3 for calls to revolution, rebellion, riots, taking up arms, collective violence,
+dehumanizing attacks on a protected group, or language urging many people to attack or overthrow targets.
+Lawful criticism, demands for resignation, and peaceful protest remain tier 1.
+
+Return ONLY a JSON array of tier numbers with exactly one number for every input comment, in the same order.
+Example for three comments: [1, 2, 1]
+
+COMMENTS:
+{comments}
 """
 
 def _call_llm(prompt: str) -> dict:
@@ -133,6 +160,50 @@ def _call_llm(prompt: str) -> dict:
     # This satisfies the type checker's requirement that the function has
     # an explicit exit on every path.
     raise RuntimeError("_call_llm exhausted retries without returning or raising")
+
+
+def classify_batch(items: list[dict]) -> list[dict]:
+    """Classify a small batch in one Gemini request to keep report generation fast."""
+    if not items:
+        return []
+
+    formatted = "\n\n".join(
+        f"[{index}] Video context: {item.get('context') or 'none'}\nComment: {item.get('text', '')}"
+        for index, item in enumerate(items, 1)
+    )
+    raw_results = _call_llm(BATCH_PROMPT.format(comments=formatted))
+    if not isinstance(raw_results, list) or len(raw_results) != len(items):
+        raise ValueError("Batch classifier returned an unexpected number of results")
+
+    results = []
+    for item, result in zip(items, raw_results):
+        lex = check_lexicon(item.get("text", ""))
+        model_tier = int(result) if int(result) in (1, 2, 3, 4, 5) else 1
+        rule_tier = lex.get("lexicon_tier") or 1
+        tier = max(model_tier, rule_tier) if lex.get("government_target_referenced") else model_tier
+        flagged_terms = lex.get("matched_terms", []) if tier >= 2 else []
+        justification = None
+        if tier >= 2:
+            justification = (
+                "Model identified abusive or disrespectful language toward a government target."
+                if tier == 2 else
+                "Model identified hate speech or incitement toward a government target."
+                if tier == 3 else
+                "Model identified a direct threat toward a government target."
+                if tier == 4 else
+                "Model identified likely coordinated misinformation about government."
+            )
+        results.append({
+            "tier": tier,
+            "government_target_referenced": bool(lex.get("government_target_referenced", False)),
+            "target_description": ", ".join(lex.get("target_terms_found", [])) or None,
+            "overall_sentiment": "flagged by batch model" if tier >= 2 else "lawful or neutral",
+            "confidence": None,
+            "flagged_terms": flagged_terms,
+            "justification": justification,
+            "source": "llm_batch",
+        })
+    return results
 
 
 def classify(text: str, context: str = None, video_id: str = None) -> dict:

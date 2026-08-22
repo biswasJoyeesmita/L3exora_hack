@@ -39,6 +39,10 @@ TIER3_INCITEMENT_PATTERNS = [
     r"\b(destroy|wipe out|eliminate)\s+(all|these)\s+\w+",
     r"\b(these people|that community)\s+(don'?t deserve|should not have)\b",
     r"\bban\s+(all|every)\s+\w+\s+from\b",
+    r"\b(calls? for|time for|need for)\s+(a\s+)?(revolution|rebellion|uprising)\b",
+    r"\b(revolution|rebellion|uprising)\s+(against|of)\b",
+    r"\btake (up )?arms\b",
+    r"\b(riot|riots|violent unrest|overthrow)\b",
 ]
 
 # ---------------------------------------------------------------------------
@@ -60,7 +64,7 @@ TIER4_THREAT_PATTERNS = [
 # references a government target; otherwise it's likely unrelated content.
 # ---------------------------------------------------------------------------
 GOVERNMENT_TARGET_TERMS = [
-    "government", "govt", "sarkar", "pm", "prime minister", "modi",
+    "government", "govt", "sarkar", "india", "pm", "prime minister", "modi",
     "minister", "ministry", "parliament", "lok sabha", "rajya sabha",
     "bjp", "congress", "chief minister", "cm", "mla", "mp",
     "police", "collector", "district magistrate", "govt scheme",
