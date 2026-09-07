@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analysis — LEXORA</title>
+  <meta name="description" content="How Lexora analyzes social-media text to help identify abusive, threatening, antinational, or otherwise harmful content." />
+
+  <!-- Same font pairing as the rest of the Lexora site, for visual consistency -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="analysis.css" />
+</head>
+<body>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header" id="top">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span class="logo-text">LEXORA</span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="primaryNav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- Update these paths if your routing differs -->
+      <nav class="primary-nav" id="primaryNav">
+        <a href="./index.html" class="nav-link">Home</a>
+        <a href="./analysis.html" class="nav-link is-active" aria-current="page">Analysis</a>
+        <a href="./about.html" class="nav-link">About Us</a>
+        <a href="#footerEmail" class="nav-link">Contact Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============ BACK BUTTON ============ -->
+  <div class="back-bar">
+    <button type="button" class="back-btn" id="backBtn">
+      <span class="back-arrow" aria-hidden="true">&larr;</span>
+      <span>Back</span>
+    </button>
+  </div>
+
+  <main>
+
+    <!-- ============ INTRO / HERO ============ -->
+    <section class="analysis-hero">
+      <div class="section-inner analysis-hero-inner">
+        <p class="hero-eyebrow">Project details</p>
+        <h1 class="hero-title">Lexora — AI-powered content analysis</h1>
+        <p class="hero-description">
+          Lexora is an AI-based content analysis system designed to identify abusive,
+          threatening, antinational, and other potentially harmful content from textual
+          social-media data. It is built as a support tool for review workflows, not a
+          fully automated or guaranteed detection system.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ PROJECT OVERVIEW ============ -->
+    <section class="overview" id="overview">
+      <div class="section-inner">
+        <h2 class="section-title">Project overview</h2>
+        <div class="overview-grid">
+          <div class="overview-card">
+            <h3 class="overview-card-title">What it is</h3>
+            <p class="overview-card-text">
+              Lexora is an AI-based model that reads social-media text and flags patterns
+              commonly associated with abusive, threatening, or antinational language.
+            </p>
+          </div>
+          <div class="overview-card">
+            <h3 class="overview-card-title">Why it was built</h3>
+            <p class="overview-card-text">
+              Harmful content online is difficult to catch manually at scale. Lexora
+              explores how automated analysis can give reviewers a faster starting point.
+            </p>
+          </div>
+          <div class="overview-card">
+            <h3 class="overview-card-title">Where it helps</h3>
+            <p class="overview-card-text">
+              It's designed to support community moderation, research, and digital-safety
+              workflows — anywhere a first pass over text content would save time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROBLEM STATEMENT ============ -->
+    <section class="problem" id="problem">
+      <div class="section-inner problem-inner">
+        <h2 class="section-title">Problem statement</h2>
+        <p class="problem-text">
+          The greatest challenge in digital moderation is not finding harmful words—it is recognizing harmful intent hidden behind ordinary words. Millions of comments and posts can contain abuse, threats, hate, incitement, anti-national content, or misinformation, yet traditional keyword-based systems struggle with context, slang, sarcasm, coded expressions, and the actual target of a message. At the same time, aggressive but lawful criticism can be incorrectly treated as harmful content, creating a serious risk of unfair moderation. What is needed is a system that can determine what the message means, whom it targets, why it is harmful, and how serious the risk is, while keeping humans responsible for the final action.
+      </div>
+    </section>
+
+    <!-- ============ OBJECTIVES ============ -->
+    <section class="objectives" id="objectives">
+      <div class="section-inner">
+        <h2 class="section-title">Objectives</h2>
+        <div class="card-grid">
+          <div class="info-card">
+            <span class="info-card-index">01</span>
+            <p class="info-card-text">Detect abusive language in social-media text.</p>
+          </div>
+          <div class="info-card">
+            <span class="info-card-index">02</span>
+            <p class="info-card-text">Identify threatening or intimidating content.</p>
+          </div>
+          <div class="info-card">
+            <span class="info-card-index">03</span>
+            <p class="info-card-text">Identify potentially antinational content.</p>
+          </div>
+          <div class="info-card">
+            <span class="info-card-index">04</span>
+            <p class="info-card-text">Analyze large volumes of text efficiently.</p>
+          </div>
+          <div class="info-card">
+            <span class="info-card-index">05</span>
+            <p class="info-card-text">Present clear, structured analysis results.</p>
+          </div>
+          <div class="info-card">
+            <span class="info-card-index">06</span>
+            <p class="info-card-text">Support safer, more responsible digital communication.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW LEXORA WORKS ============ -->
+    <section class="workflow" id="how-it-works">
+      <div class="section-inner">
+        <h2 class="section-title">How Lexora works</h2>
+        <div class="workflow-track">
+          <div class="workflow-step">
+            <span class="workflow-step-number">1</span>
+            <p class="workflow-step-label">Data ingestion</p>
+          </div>
+          <span class="workflow-arrow" aria-hidden="true">&rarr;</span>
+
+          <div class="workflow-step">
+            <span class="workflow-step-number">2</span>
+            <p class="workflow-step-label">Text preprocessing</p>
+          </div>
+          <span class="workflow-arrow" aria-hidden="true">&rarr;</span>
+
+          <div class="workflow-step">
+            <span class="workflow-step-number">3</span>
+            <p class="workflow-step-label">Hybrid classification</p>
+          </div>
+          <span class="workflow-arrow" aria-hidden="true">&rarr;</span>
+
+          <div class="workflow-step">
+            <span class="workflow-step-number">4</span>
+            <p class="workflow-step-label">Tier assignment</p>
+          </div>
+          <span class="workflow-arrow" aria-hidden="true">&rarr;</span>
+
+          <div class="workflow-step">
+            <span class="workflow-step-number">5</span>
+            <p class="workflow-step-label">API Gateway</p>
+          </div>
+          <span class="workflow-arrow" aria-hidden="true">&rarr;</span>
+
+          <div class="workflow-step">
+            <span class="workflow-step-number">6</span>
+            <p class="workflow-step-label">Data storage for review</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DETECTION CATEGORIES ============ -->
+    <section class="categories" id="categories">
+      <div class="section-inner">
+        <h2 class="section-title">Detection categories</h2>
+        <div class="card-grid card-grid-4">
+          <div class="category-card">
+            <span class="category-icon" aria-hidden="true">⚠</span>
+            <h3 class="category-title">Tier 1</h3>
+            <p class="category-text">Identifies potentially abusive or offensive language.</p>
+          </div>
+          <div class="category-card">
+            <span class="category-icon" aria-hidden="true">⛔</span>
+            <h3 class="category-title">Tier 2</h3>
+            <p class="category-text">Identifies other potentially harmful or suspicious textual patterns.</p>
+          </div>
+          <div class="category-card">
+            <span class="category-icon" aria-hidden="true">◆</span>
+            <h3 class="category-title">Tier 3</h3>
+            <p class="category-text">Identifies text that may contain threats or intimidation.</p>
+          </div>
+          <div class="category-card">
+            <span class="category-icon" aria-hidden="true">◈</span>
+            <h3 class="category-title">Tier 4</h3>
+            <p class="category-text">Identifies text that may contain antinational threats or intimidation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TECHNOLOGY & MODEL ============ -->
+    <section class="tech" id="technology">
+      <div class="section-inner">
+        <h2 class="section-title">Technology &amp; model</h2>
+        <!--
+          ================================================================
+          EDIT TECH STACK HERE
+          Replace the bracketed placeholders with the real technologies
+          used. Add or remove a .tech-row block as needed.
+          ================================================================
+        -->
+        <div class="tech-list">
+          <div class="tech-row">
+            <span class="tech-key">AI / Machine learning</span>
+            <span class="tech-value">Hybrid Regex + Scikit-learn classifier</span>
+          </div>
+          <div class="tech-row">
+            <span class="tech-key">Programming language</span>
+            <span class="tech-value">Python</span>
+          </div>
+          <div class="tech-row">
+            <span class="tech-key">Frontend</span>
+            <span class="tech-value">HTML, CSS, JavaScript</span>
+          </div>
+          <div class="tech-row">
+            <span class="tech-key">Backend</span>
+            <span class="tech-value">Node.js + API Gateway</span>
+          </div>
+          <div class="tech-row">
+            <span class="tech-key">Database</span>
+            <span class="tech-value">MongoDB</span>
+          </div>
+          <div class="tech-row">
+            <span class="tech-key">NLP</span>
+            <span class="tech-value">Regex/lexicon matching + ML/LLM semantic analysis</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ KEY FEATURES ============ -->
+    <section class="features" id="features">
+      <div class="section-inner">
+        <h2 class="section-title">Key features</h2>
+        <div class="card-grid">
+          <div class="info-card">
+            <p class="info-card-text">AI-powered content analysis</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Multiple content categories</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Fast text processing</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Clear, structured analysis results</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Simple, minimal user interface</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Scalable architecture</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Backend / API integration ready</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ USE CASES ============ -->
+    <section class="use-cases" id="use-cases">
+      <div class="section-inner">
+        <h2 class="section-title">Potential use cases</h2>
+        <div class="card-grid">
+          <div class="info-card">
+            <p class="info-card-text">Social-media content monitoring</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Online community moderation</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Research and analysis</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Digital safety systems</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Content classification</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Support tools for moderators</p>
+          </div>
+        </div>
+        <p class="use-cases-note">
+          Lexora is an analysis and support system — it is intended to assist human
+          judgement, not replace it.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ FUTURE SCOPE ============ -->
+    <section class="future" id="future-scope">
+      <div class="section-inner">
+        <h2 class="section-title">Future scope</h2>
+        <div class="card-grid">
+          <div class="info-card">
+            <p class="info-card-text">Improved model accuracy</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Multilingual content analysis</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Real-time analysis</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Context-aware classification</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Better false-positive handling</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">API integration</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Dashboard and analytics</p>
+          </div>
+          <div class="info-card">
+            <p class="info-card-text">Continuous model improvement</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROJECT HIGHLIGHTS ============ -->
+    <section class="highlights" id="highlights">
+      <div class="section-inner">
+        <div class="highlights-grid">
+          <div class="highlight-item">
+            <span class="highlight-value">4</span>
+            <span class="highlight-label">Detection categories</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-value">AI</span>
+            <span class="highlight-label">Based analysis</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-value">Human</span>
+            <span class="highlight-label">In the loop decision-making</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-value">Scalable</span>
+            <span class="highlight-label">Architecture</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CALL TO ACTION ============ -->
+    <section class="cta">
+      <div class="section-inner cta-inner">
+        <h2 class="cta-title">Ready to analyze content?</h2>
+        <!-- Update the href if your analysis interface lives at a different path -->
+        <a href="index.html#analysis" class="btn btn-primary">Go to analysis</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">LEXORA</span>
+        <span class="footer-tagline">AI-powered content analysis</span>
+      </div>
+      <div class="footer-contact">
+        <span class="footer-contact-label">Contact us</span>
+        <!-- Replace with the real address; keep the mailto: prefix -->
+        <a href="mailto:teameldorado2026@gmail.com" class="footer-email" id="footerEmail">teameldorado2026@gmail.com</a>
+      </div>
+    </div>
+    <p class="footer-copyright">© 2026 Lexora. All rights reserved.</p>
+  </footer>
+
+  <script src="analysis.js"></script>
+</body>
+</html>

@@ -48,6 +48,7 @@ function parseReport(text) {
         videos: [],
 
         socialImpactAssessment: "",
+        topicSummary: "",
 
         generatedAt: new Date().toISOString()
     };

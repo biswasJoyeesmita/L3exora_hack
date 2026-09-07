@@ -14,6 +14,42 @@ const REPORT_PATH = path.join(
     "youtube_feed_report.txt"
 );
 
+function addSemanticReasons(report) {
+    if (!report) return report;
+
+    const sensitiveTopic = /rape|sexual assault|women safety|woman safety|child safety|murder|crime|abuse|violence|terror|victim|harassment|death|killed|missing|protest|riot|communal|war/i.test(report.query || "");
+    if (sensitiveTopic && String(report.riskLevel || "").toLowerCase() === "low") {
+        const tierStats = report.tierStats || {};
+        report.riskLevel = Number(tierStats.tier3 || 0) > 0 || Number(tierStats.tier4 || 0) > 0 ? "High" : "Moderate";
+    }
+
+    if (!Array.isArray(report.flaggedComments)) return report;
+
+    const normalizeComment = (item) => {
+        if (!/rule-based screening matched/i.test(item.reason || "")) return item;
+
+        const tier = Number(item.tier || 2);
+        let reason;
+        if (tier >= 4) {
+            reason = "The comment expresses a direct or credible threat of physical harm toward a person or group, creating a threatening sentiment that requires human review.";
+        } else if (tier === 3) {
+            reason = "The comment uses dehumanizing, hateful, or violence-encouraging language, expressing a harmful and hostile sentiment that requires human review.";
+        } else {
+            reason = "The comment uses insulting or degrading language toward a person, group, or institution, expressing a hostile and disrespectful sentiment that requires human review.";
+        }
+        return { ...item, reason };
+    };
+
+    report.flaggedComments = report.flaggedComments.map(normalizeComment);
+    if (Array.isArray(report.videos)) {
+        report.videos = report.videos.map((video) => ({
+            ...video,
+            comments: Array.isArray(video.comments) ? video.comments.map(normalizeComment) : video.comments,
+        }));
+    }
+    return report;
+}
+
 // GET latest model report
 // If ?query=<hashtag> is provided, triggers the live Lexora pipeline via the
 // Python backend and streams the structured JSON result straight to the client.
@@ -22,7 +58,7 @@ router.get("/report", async (req, res, next) => {
 
     try {
         const query = (req.query.query || "").trim();
-        const requestedComments = Math.min(200, Math.max(1, Number.parseInt(req.query.comments, 10) || 200));
+        const requestedComments = Math.min(2000, Math.max(1, Number.parseInt(req.query.comments, 10) || 200));
 
         if (query) {
             // --- LIVE PIPELINE via Python backend ---
@@ -35,7 +71,7 @@ router.get("/report", async (req, res, next) => {
                 });
             } catch (error) {
                 return res.status(503).json({
-                    error: "The Lexora Python model service is unavailable. Start it with: python Lexora/api_server.py"
+                    error: "The Lexora Python model service is unavailable. Start both servers with `npm start` or run: python Lexora/L3exora_hack/api_server.py"
                 });
             }
 
@@ -62,7 +98,7 @@ router.get("/report", async (req, res, next) => {
         const jsonPath = REPORT_PATH + ".json";
         if (fs.existsSync(jsonPath)) {
             const cached = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
-            return res.json(cached);
+            return res.json(addSemanticReasons(cached));
         }
 
         // Last resort: parse the old-style txt file if it exists

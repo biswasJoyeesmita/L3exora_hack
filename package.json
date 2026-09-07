@@ -1,17 +1,20 @@
 {
   "name": "lexora-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Lexora Government Abuse Detection System",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
+    "start": "concurrently \"node server.js\" \"python api_server.py\"",
+    "dev": "concurrently \"node --watch server.js\" \"python api_server.py\"",
+    "node": "node server.js",
+    "python": "python api_server.py",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "concurrently": "^10.0.5",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

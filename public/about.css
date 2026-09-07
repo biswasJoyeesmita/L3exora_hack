@@ -1,0 +1,563 @@
+/* =========================================================
+   LEXORA — About Us page
+   Design tokens are duplicated here so about.html can run
+   standalone. Keep these values identical to style.css on
+   the main site so the two pages feel like one product.
+   ========================================================= */
+:root {
+  --color-bg: #B7D88A;
+  --color-primary: #3F5F24;
+  --color-footer: #000000;
+
+  --color-primary-dark: #2E4A19;
+  --color-surface: #F6FAEF;
+  --color-surface-alt: #E4EFD2;
+  --color-text: #1C2A12;
+  --color-text-muted: #4B5C3C;
+  --color-border: rgba(28, 42, 18, 0.16);
+  --color-border-strong: rgba(28, 42, 18, 0.28);
+  --color-white: #FFFFFF;
+
+  --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+  --font-body: "Inter", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "Courier New", monospace;
+
+  --max-width: 1120px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --transition-fast: 160ms ease;
+  --transition-med: 260ms ease;
+}
+
+/* =========================================================
+   Reset & base
+   ========================================================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  margin: 0;
+  color: var(--color-text);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.section-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section-title {
+  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary-dark);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   Header (shared look with the main site)
+   ========================================================= */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: rgba(183, 216, 138, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background-color: var(--color-primary);
+  transform: rotate(45deg);
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: 0.03em;
+  color: var(--color-text);
+}
+
+.primary-nav {
+  display: flex;
+  gap: 32px;
+}
+
+.nav-link {
+  position: relative;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  padding: 4px 2px;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition-fast);
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Current page indicator */
+.nav-link.is-active {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+.nav-link.is-active::after {
+  transform: scaleX(1);
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 26px;
+  height: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-toggle span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background-color: var(--color-text);
+  border-radius: 2px;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.nav-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* =========================================================
+   Back button
+   ========================================================= */
+.back-bar {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 18px 24px 0;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.88rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(28, 42, 18, 0.18);
+  transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.back-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateX(-2px);
+  box-shadow: 0 4px 10px rgba(28, 42, 18, 0.24);
+}
+
+.back-arrow {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* =========================================================
+   About hero
+   ========================================================= */
+.about-hero {
+  padding: 56px 0 48px;
+}
+
+.about-hero-inner {
+  max-width: 660px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: clamp(2.2rem, 5.5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: 0.005em;
+}
+
+.hero-description {
+  margin-top: 16px;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  max-width: 60ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* =========================================================
+   Team grid
+   ========================================================= */
+.team {
+  padding: 20px 0 76px;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+  align-items: stretch;
+}
+
+.member-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(28, 42, 18, 0.06);
+  transition: transform var(--transition-med), box-shadow var(--transition-med), border-color var(--transition-med);
+}
+
+.member-card:hover,
+.member-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 28px rgba(28, 42, 18, 0.14);
+  border-color: var(--color-border-strong);
+}
+
+.member-photo {
+  width: 104px;
+  height: 104px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--color-surface-alt);
+  border: 2px solid var(--color-surface-alt);
+}
+
+.member-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-med);
+}
+
+.member-card:hover .member-photo img,
+.member-card:focus-visible .member-photo img {
+  transform: scale(1.06);
+}
+
+.member-name {
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.member-role {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-primary-dark);
+}
+
+.member-desc {
+  margin-top: 14px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  flex: 1;
+}
+
+.member-link {
+  margin-top: 18px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.member-link span {
+  transition: transform var(--transition-fast);
+}
+
+.member-card:hover .member-link span,
+.member-card:focus-visible .member-link span {
+  transform: translateX(3px);
+}
+
+/* On desktop, 5 cards in a 3-column grid naturally form a 3+2 layout;
+   center the second row so it doesn't hug the left edge. */
+@media (min-width: 901px) {
+  .team-grid {
+    grid-template-columns: repeat(3, minmax(0, 320px));
+    justify-content: center;
+  }
+}
+
+/* =========================================================
+   Mission section
+   ========================================================= */
+.mission {
+  padding: 60px 0;
+  background-color: var(--color-surface-alt);
+}
+
+.mission-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.mission-text {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+/* =========================================================
+   Contact section
+   ========================================================= */
+.contact-section {
+  padding: 56px 0;
+}
+
+.contact-inner {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.contact-line {
+  font-size: 1.02rem;
+  color: var(--color-text-muted);
+}
+
+.contact-email {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--color-primary-dark);
+  border-bottom: 1px solid var(--color-primary-dark);
+  padding-bottom: 2px;
+  transition: opacity var(--transition-fast);
+}
+
+.contact-email:hover {
+  opacity: 0.7;
+}
+
+/* =========================================================
+   Footer
+   ========================================================= */
+.site-footer {
+  background-color: var(--color-footer);
+  color: var(--color-white);
+  padding: 40px 24px 22px;
+}
+
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer-logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.03em;
+}
+
+.footer-tagline {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: right;
+}
+
+.footer-contact-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.footer-email {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--color-white);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  padding-bottom: 2px;
+  transition: opacity var(--transition-fast);
+}
+
+.footer-email:hover {
+  opacity: 0.7;
+}
+
+.footer-copyright {
+  max-width: var(--max-width);
+  margin: 24px auto 0;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 900px) {
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .nav-toggle {
+    display: flex;
+  }
+
+  .primary-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    flex-direction: column;
+    gap: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition-med);
+  }
+
+  .primary-nav.is-open {
+    max-height: 280px;
+  }
+
+  .nav-link {
+    padding: 16px 24px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .nav-link::after {
+    display: none;
+  }
+
+  .about-hero {
+    padding: 40px 0 36px;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-contact {
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+}

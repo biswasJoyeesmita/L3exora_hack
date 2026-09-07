@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us — LEXORA</title>
+  <meta name="description" content="Meet the team behind Lexora, an AI-based social media content analysis project." />
+
+  <!-- Same font pairing as the main Lexora site, for visual consistency -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="about.css" />
+</head>
+<body>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header" id="top">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span class="logo-text">LEXORA</span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="primaryNav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!--
+        Navigation paths are placeholders. Update them if your file names
+        or routing differ (e.g. if Analysis / Contact live on the same
+        page as anchors instead of separate files).
+      -->
+      <nav class="primary-nav" id="primaryNav">
+        <a href="./index.html" class="nav-link">Home</a>
+        <a href="./analysis.html" class="nav-link">Analysis</a>
+        <a href="./about.html" class="nav-link is-active" aria-current="page">About Us</a>
+        <a href="#footerEmail" class="nav-link">Contact Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============ BACK BUTTON ============ -->
+  <div class="back-bar">
+    <button type="button" class="back-btn" id="backBtn">
+      <span class="back-arrow" aria-hidden="true">&larr;</span>
+      <span>Back</span>
+    </button>
+  </div>
+
+  <main>
+
+    <!-- ============ ABOUT HERO ============ -->
+    <section class="about-hero">
+      <div class="section-inner about-hero-inner">
+        <h1 class="hero-title">Meet the minds behind Lexora</h1>
+        <p class="hero-description">
+          Lexora is built by a team of developers working toward smarter and more
+          responsible social-media content analysis — combining a shared model with
+          each person's own area of focus, from research to interface design.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ TEAM SECTION ============ -->
+    <section class="team" id="team">
+      <div class="section-inner">
+        <h2 class="section-title">Our team</h2>
+
+        <!--
+          ================================================================
+          EDIT TEAM MEMBERS HERE
+          ================================================================
+          Each card is a self-contained <a> block. To update a member:
+            1. Change the href to their portfolio page (e.g. member1.html)
+            2. Replace the image src under images/
+            3. Replace the name, role, and short description text
+          Copy/paste a whole <a class="member-card">...</a> block to add
+          more members, or delete one to remove a member.
+          ================================================================
+        -->
+        <div class="team-grid">
+
+          <a href="member1.html" class="member-card">
+            <div class="member-photo">
+              <img src="./Souhardya.jpeg" alt="Portrait of Member Name 1" loading="lazy" />
+            </div>
+            <h3 class="member-name">Souhardya Mallik</h3>
+            <p class="member-role">Team Leader / AI Developer</p>
+            <p class="member-desc">Leads the project direction and builds the core detection model.</p>
+            <span class="member-link">View portfolio <span aria-hidden="true">&rarr;</span></span>
+          </a>
+
+          <a href="member3.html" class="member-card">
+            <div class="member-photo">
+              <img src="./Joyeesmita.jpeg" alt="Portrait of Member Name 3" loading="lazy" />
+            </div>
+            <h3 class="member-name">Joyeesmita Biswas</h3>
+            <p class="member-role">AI Developer</p>
+            <p class="member-desc">Designs, develops, and optimizes the Lexora AI model for accurate and efficient content detection.</p>
+            <span class="member-link">View portfolio <span aria-hidden="true">&rarr;</span></span>
+          </a>
+
+          <a href="member2.html" class="member-card">
+            <div class="member-photo">
+              <img src="./Shreya.jpeg" alt="Portrait of Member Name 2" loading="lazy" />
+            </div>
+            <h3 class="member-name">Shreya Paul</h3>
+            <p class="member-role">Frontend Developer</p>
+            <p class="member-desc">Designs and builds the website and user interface.</p>
+            <span class="member-link">View portfolio <span aria-hidden="true">&rarr;</span></span>
+          </a>
+
+          <a href="member4.html" class="member-card">
+            <div class="member-photo">
+              <img src="./Prakas.jpeg" alt="Portrait of Member Name 4" loading="lazy" />
+            </div>
+            <h3 class="member-name">Prakas Halder</h3>
+            <p class="member-role">Backend Developer</p>
+            <p class="member-desc">Develops and manages the backend architecture, APIs, and server-side systems.</p>
+            <span class="member-link">View portfolio <span aria-hidden="true">&rarr;</span></span>
+          </a>
+
+          <a href="member5.html" class="member-card">
+            <div class="member-photo">
+              <img src="./Bishal.jpeg" alt="Portrait of Member Name 5" loading="lazy" />
+            </div>
+            <h3 class="member-name">Bishal Mondal</h3>
+            <p class="member-role">Backend Developer</p>
+            <p class="member-desc">Develops and manages the backend architecture, APIs, and server-side systems.</p>
+            <span class="member-link">View portfolio <span aria-hidden="true">&rarr;</span></span>
+          </a>
+
+          <a href="member5.html" class="member-card">
+            <div class="member-photo">
+              <img src="./Ankita.jpeg" alt="Portrait of Member Name 5" loading="lazy" />
+            </div>
+            <h3 class="member-name">Ankita Naiya</h3>
+            <p class="member-role">PPT and Speech Designer</p>
+            <p class="member-desc">Creates compelling presentations and speech materials for the team.</p>
+            <span class="member-link">View portfolio <span aria-hidden="true">&rarr;</span></span>
+          </a>
+
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MISSION SECTION ============ -->
+    <section class="mission">
+      <div class="section-inner mission-inner">
+        <h2 class="section-title">Our mission</h2>
+        <p class="mission-text">
+          Our team is working on technology that can help identify potentially harmful
+          social-media content and support safer, more responsible digital communication.
+          It's an ongoing effort, and we treat it as a tool to assist human judgement
+          rather than replace it.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">LEXORA</span>
+        <span class="footer-tagline">AI-powered content analysis</span>
+      </div>
+      <div class="footer-contact">
+        <span class="footer-contact-label">Contact us</span>
+        <!-- Replace with the real address; keep the mailto: prefix -->
+        <a href="mailto:teameldorado2026@gmail.com" class="footer-email" id="footerEmail">teameldorado2026@gmail.com</a>
+      </div>
+    </div>
+    <p class="footer-copyright">© 2026 Lexora. All rights reserved.</p>
+  </footer>
+
+  <script src="about.js"></script>
+</body>
+</html>

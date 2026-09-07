@@ -28,17 +28,14 @@ def _map_sentiment_to_tier(label: str, text: str, lex: dict, video_ctx: dict = N
       Tier 2: unprompted hostility, worth a human look.
     """
     label_lower = label.lower()
-    has_target = lex["government_target_referenced"]
     abusive_terms = lex.get("abusive_terms_found", [])
     video_is_negative = bool(video_ctx) and "negative" in video_ctx.get("label", "")
 
     if "negative" in label_lower:
-        if has_target and abusive_terms:
+        if abusive_terms:
             return 2, "Abusive / Disrespectful"
-        elif has_target and video_is_negative:
+        elif video_is_negative:
             return 1, "Lawful / Neutral"
-        elif has_target:
-            return 2, "Critical / Disrespectful"
         else:
             return 1, "Lawful / Neutral"
     else:
@@ -73,12 +70,12 @@ def classify(text: str, context: str = None, video_id: str = None) -> dict:
         video_ctx = classify_video_context(video_id, context)
 
     # 1. Fast Pre-filter: Regex direct threats short-circuit to Tier 4
-    if lex["lexicon_tier"] == 4 and lex["government_target_referenced"]:
+    if lex["lexicon_tier"] == 4:
         return {
             "tier": 4,
             "tier_label": "Direct Threat",
             "is_flagged": True,
-            "government_target_referenced": True,
+            "government_target_referenced": lex["government_target_referenced"],
             "target_description": ", ".join(lex["target_terms_found"]),
             "flagged_terms": lex["matched_terms"],
             "source": "lexicon_prefilter",
@@ -93,6 +90,14 @@ def classify(text: str, context: str = None, video_id: str = None) -> dict:
 
     # 3. Map context sentiment to Tier (informed by the video's own framing)
     tier_num, tier_label = _map_sentiment_to_tier(sentiment_label, text, lex, video_ctx)
+    rule_tier = lex.get("lexicon_tier") or 1
+    if rule_tier > tier_num:
+        tier_num = rule_tier
+        tier_label = {
+            2: "Abusive / Disrespectful",
+            3: "Hate Speech / Incitement",
+            4: "Direct Threat",
+        }.get(rule_tier, tier_label)
     is_flagged = tier_num > 1
 
     return {
@@ -104,6 +109,11 @@ def classify(text: str, context: str = None, video_id: str = None) -> dict:
         "overall_sentiment": f"{sentiment_label} ({sentiment_score:.2f})",
         "video_sentiment": f"{video_ctx['label']} ({video_ctx['score']:.2f})" if video_ctx else None,
         "flagged_terms": lex.get("abusive_terms_found", []),
+        "justification": (
+            f"Detected {tier_label.lower()} language"
+            + (f" involving: {', '.join(lex.get('abusive_terms_found', []))}." if lex.get("abusive_terms_found") else ".")
+            if is_flagged else None
+        ),
         "source": "local_roberta_transformer",
     }
 

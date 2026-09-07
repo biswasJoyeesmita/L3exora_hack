@@ -59,9 +59,8 @@ TIER4_THREAT_PATTERNS = [
 ]
 
 # ---------------------------------------------------------------------------
-# Government/target-entity terms — used to confirm WHO the abuse/threat is
-# directed at. Text matching tier 2-4 patterns is only actionable if it also
-# references a government target; otherwise it's likely unrelated content.
+# Target-entity terms retained as compatibility metadata for existing clients.
+# Moderation applies to abusive or threatening content about any target.
 # ---------------------------------------------------------------------------
 GOVERNMENT_TARGET_TERMS = [
     "government", "govt", "sarkar", "india", "pm", "prime minister", "modi",
@@ -87,7 +86,7 @@ def check_lexicon(text: str) -> dict:
     """
     Run the rule-based layer over normalized text.
     Returns the highest tier matched (2-4), the specific terms/patterns
-    that triggered it, and whether a government target was referenced.
+    that triggered it, and whether a legacy government target was referenced.
     Tier 1 (nothing matched) is the default — this function does NOT
     decide tier 1 vs not; classify.py treats "no match" as "defer to LLM".
     """
