@@ -91,7 +91,11 @@ print(result)
 #   "description": "Lawful Criticism"
 # }
 📊 Classification Tiers & Definitions
-LabelTierSeverity LevelAction Taken0Tier 1Lawful Criticism / NeutralPassed (No action needed)1Tier 2Abusive / DisrespectfulQueued (Sent to review queue)1Tier 3Hate Speech / IncitementQueued (Priority moderation)1Tier 4Direct Threat / Anti-NationalQueued (Immediate flag & manual verification)
+Label           Tier            Severity     Level                     Action Taken
+0           Tier 1          Lawful Criticism / Neutral              Passed (No action needed)
+1           Tier 2          Abusive / Disrespectful                 Queued (Sent to review queue)
+1           Tier 3          Hate Speech / Incitement                Queued (Priority moderation)
+1           Tier 4          Direct Threat / Anti-National           Queued (Immediate flag +                                                                            manual verification)
 
 🏆 Project Status
 Status: In active development (~80% completed for hackathon submission).
