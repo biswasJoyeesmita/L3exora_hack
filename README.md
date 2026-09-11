@@ -7,7 +7,7 @@
 ## 📌 Features
 
 - **2-Stage Hybrid Architecture:**
-  - **Stage 1 (Fast Regex / Lexicon Filter):** High-speed pattern matching using explicit regex rules to catch immediate threats and flaggable keywords (`lexicon.py`).
+  - **Stage 1 (Fast Regex  / Lexicon Filter ):** High-speed pattern matching using explicit regex rules to catch immediate threats and flaggable keywords (`lexicon.py`).
   - **Stage 2 (Intent & Context Classifier):** ML-driven classification utilizing TF-IDF vectorization and Logistic Regression (`tier_model.pkl`) to capture deep context, nuance, and user intent.
 - **Multi-Tier Classification System:** Categorizes content into 4 precise severity tiers:
   - **Tier 1:** Lawful / Neutral Criticism *(Passed / Allowed)*
