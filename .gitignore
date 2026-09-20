@@ -1,20 +1,34 @@
-# Dependencies
-node_modules/
+# Environment & Secrets (CRITICAL: NEVER commit API keys)
+.env
+.env.*
+!.env.example
 
-# Python cache & build artifacts
+# Node dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+
+# Python cache & virtual environments
 __pycache__/
 *.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+env/
 *.pkl
 tier_model.pkl
-*.csv
-output.txt
-run_tests.py
 
-# Environment & Config
-.env
-.DS_Store
-
-# Temporary archive & extracted folders from Desktop
+# Logs & temp files
+*.log
+server-*.err
+server-*.out
 123/
 123.zip
-L3exora_hack/
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+brain/

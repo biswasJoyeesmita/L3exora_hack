@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
   initDashboardButtons();
   initAnalyzeButton();
   initCharCount();
+  initAuditButtons();
+  if (document.getElementById("auditLogList")) {
+    loadAuditLog();
+  }
 });
 
 /* ---------------------------------------------------------
@@ -275,15 +279,15 @@ async function loadLatestReport() {
   const queryInput = document.getElementById("reportQueryInput");
   const query = queryInput ? queryInput.value.trim() : "";
   const commentsInput = document.getElementById("reportCommentsInput");
-  const requestedComments = Math.min(2000, Math.max(1, Number.parseInt(commentsInput?.value || "200", 10) || 200));
+  const requestedVideos = Math.min(100, Math.max(1, Number.parseInt(commentsInput?.value || "20", 10) || 20));
 
   let url = "/api/report";
   if (query) {
-    url += "?query=" + encodeURIComponent(query) + "&comments=" + requestedComments;
+    url += "?query=" + encodeURIComponent(query) + "&videos=" + requestedVideos;
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 min timeout
+  const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 min timeout
 
   try {
     const response = await fetch(url, {
@@ -319,14 +323,19 @@ async function loadLatestReport() {
     loading?.classList.add("hidden");
     empty?.classList.remove("hidden");
 
+    let userMsg = error.message || "Unknown error";
+    if (error.name === "AbortError" || userMsg.includes("aborted")) {
+      userMsg = "The scan request timed out because scanning 50 or 100 videos requires processing thousands of comments. Please try again or scan 20 videos for a faster response.";
+    }
+
     if (empty) {
       empty.innerHTML = `
         <div class="dash-error">
           <i class="fa-solid fa-triangle-exclamation" style="font-size:2rem;color:#C62828;margin-bottom:12px;"></i>
           <p style="font-weight:700;font-size:1.1rem;margin-bottom:8px;">Report Loading Failed</p>
-          <p style="color:var(--color-text-muted);">${escapeHtml(error.message)}</p>
+          <p style="color:var(--color-text-muted);">${escapeHtml(userMsg)}</p>
           <p style="font-size:0.85rem;color:var(--color-text-muted);margin-top:12px;">
-            Ensure backend server is active and <code>/api/report</code> is responding.
+            Please check your connection and click Analyze to retry.
           </p>
         </div>
       `;
@@ -356,8 +365,13 @@ function renderReport(report) {
   const scanned = Number(report.commentsScanned ?? 0);
   const flagged = Number(report.flagged ?? 0);
   const lawful = Number(report.lowConcern ?? report.lawful ?? (scanned - flagged));
+  const videosCount = Number(report.videosScanned ?? (Array.isArray(report.videos) ? report.videos.length : 0));
 
-  document.getElementById("commentsScanned").textContent = scanned;
+  const videosEl = document.getElementById("videosScanned");
+  if (videosEl) videosEl.textContent = videosCount;
+
+  const commentsEl = document.getElementById("commentsScanned");
+  if (commentsEl) commentsEl.textContent = scanned;
   document.getElementById("flaggedCount").textContent = flagged;
   document.getElementById("lawfulCount").textContent = lawful;
 
@@ -440,11 +454,111 @@ function renderReport(report) {
       <td>${videoCellHTML}</td>
       <td>${escapeHtml(item.user || "Unknown")}</td>
       <td style="white-space:pre-wrap;min-width:280px;">${escapeHtml(item.comment || "")}</td>
-      <td>${escapeHtml(item.reason || "Flagged by model for human review.")}</td>
+      <td style="white-space:pre-wrap;min-width:300px;line-height:1.4;">${escapeHtml(item.reason || "Flagged by model for human review.")}</td>
     `;
     tableBody.appendChild(row);
   });
 
   if (tableCount) tableCount.textContent = `${comments.length} flagged comments`;
   if (tableEmpty) tableEmpty.classList.toggle("hidden", comments.length > 0);
+
+  // A fresh report run may have appended new Tier 3/4 entries to the
+  // audit chain — refresh the panel so it reflects them.
+  loadAuditLog();
+}
+
+/* ---------------------------------------------------------
+   TAMPER-EVIDENT AUDIT TRAIL (hash-chained Tier 3/4 log)
+   --------------------------------------------------------- */
+function initAuditButtons() {
+  const verifyBtn = document.getElementById("verifyChainBtn");
+  const refreshBtn = document.getElementById("refreshAuditBtn");
+
+  verifyBtn?.addEventListener("click", verifyAuditChain);
+  refreshBtn?.addEventListener("click", loadAuditLog);
+}
+
+async function verifyAuditChain() {
+  const resultEl = document.getElementById("auditVerifyResult");
+  const btn = document.getElementById("verifyChainBtn");
+  if (resultEl) {
+    resultEl.textContent = "Verifying…";
+    resultEl.className = "audit-verify-result is-checking";
+  }
+  if (btn) btn.disabled = true;
+
+  try {
+    const response = await fetch("/api/audit/verify", { headers: { Accept: "application/json" } });
+    const data = await response.json().catch(() => ({ error: "The audit service responded with invalid JSON." }));
+
+    if (!resultEl) return;
+
+    if (!response.ok || data?.error) {
+      resultEl.textContent = data?.error || `Audit service error (${response.status}).`;
+      resultEl.className = "audit-verify-result is-invalid";
+      return;
+    }
+
+    if (data.valid) {
+      resultEl.textContent = `✓ Chain intact — ${data.total_entries} ${data.total_entries === 1 ? "entry" : "entries"} verified, no tampering detected.`;
+      resultEl.className = "audit-verify-result is-valid";
+    } else {
+      const idx = Number.isInteger(data.broken_at_index) ? data.broken_at_index : "?";
+      resultEl.textContent = `✗ Chain broken at entry ${idx}: ${data.reason || "verification failed."}`;
+      resultEl.className = "audit-verify-result is-invalid";
+    }
+  } catch (error) {
+    if (resultEl) {
+      resultEl.textContent = "Could not reach the audit service. Please try again.";
+      resultEl.className = "audit-verify-result is-invalid";
+    }
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+async function loadAuditLog() {
+  const listEl = document.getElementById("auditLogList");
+  const emptyEl = document.getElementById("auditLogEmpty");
+  const countEl = document.getElementById("auditEntryCount");
+  if (!listEl) return;
+
+  try {
+    const response = await fetch("/api/audit/log?limit=20", { headers: { Accept: "application/json" } });
+    if (!response.ok) return;
+    const data = await response.json();
+    const entries = Array.isArray(data.entries) ? data.entries : [];
+
+    if (countEl) countEl.textContent = `${data.total_entries ?? entries.length} entries`;
+
+    listEl.querySelectorAll(".audit-log-row").forEach((row) => row.remove());
+
+    if (!entries.length) {
+      if (emptyEl) emptyEl.classList.remove("hidden");
+      return;
+    }
+    if (emptyEl) emptyEl.classList.add("hidden");
+
+    entries.forEach((entry) => {
+      const record = entry.record || {};
+      const row = document.createElement("div");
+      row.className = "audit-log-row";
+      const shortHash = (entry.entry_hash || "").slice(0, 12);
+      const tierClass = getTierClass(record.tier);
+      const commentText = (record.comment_text || "").slice(0, 160);
+      const when = record.timestamp ? new Date(record.timestamp).toLocaleString() : "";
+
+      row.innerHTML = `
+        <span class="term-badge ${tierClass}">Tier ${escapeHtml(record.tier ?? "?")}</span>
+        <span class="audit-log-text">${escapeHtml(commentText)}${(record.comment_text || "").length > 160 ? "…" : ""}</span>
+        <span class="audit-log-meta">
+          <span class="audit-log-hash" title="${escapeHtml(entry.entry_hash || "")}">#${escapeHtml(shortHash)}</span>
+          <span class="audit-log-time">${escapeHtml(when)}</span>
+        </span>
+      `;
+      listEl.appendChild(row);
+    });
+  } catch (error) {
+    console.error("LEXORA AUDIT LOG ERROR:", error);
+  }
 }

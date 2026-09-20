@@ -58,27 +58,48 @@ router.get("/report", async (req, res, next) => {
 
     try {
         const query = (req.query.query || "").trim();
-        const requestedComments = Math.min(2000, Math.max(1, Number.parseInt(req.query.comments, 10) || 200));
+        const requestedVideos = Math.min(100, Math.max(1, Number.parseInt(req.query.videos || req.query.target_videos || req.query.comments, 10) || 20));
 
         if (query) {
             // --- LIVE PIPELINE via Python backend ---
             let pythonRes;
-            try {
-                pythonRes = await fetch("http://127.0.0.1:5000/api/generate_report", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query, target_comments: requestedComments })
-                });
-            } catch (error) {
-                return res.status(503).json({
-                    error: "The Lexora Python model service is unavailable. Start both servers with `npm start` or run: python Lexora/L3exora_hack/api_server.py"
-                });
+            let lastError;
+
+            for (let attempt = 1; attempt <= 5; attempt += 1) {
+                try {
+                    pythonRes = await fetch("http://127.0.0.1:5000/api/generate_report", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ query, target_videos: requestedVideos })
+                    });
+
+                    if (pythonRes.ok) {
+                        break;
+                    }
+
+                    lastError = new Error(`Python backend returned status ${pythonRes.status}`);
+                    if (pythonRes.status >= 400 && pythonRes.status < 500) {
+                        break;
+                    }
+                } catch (error) {
+                    lastError = error;
+                }
+
+                if (attempt < 5) {
+                    await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+                }
             }
 
-            if (!pythonRes.ok) {
-                let errMsg = "Python backend error.";
-                try { errMsg = (await pythonRes.json()).error || errMsg; } catch { }
-                return res.status(pythonRes.status).json({ error: errMsg });
+            if (!pythonRes || !pythonRes.ok) {
+                if (pythonRes && pythonRes.status >= 400 && pythonRes.status < 500) {
+                    let errMsg = "Python backend error.";
+                    try { errMsg = (await pythonRes.json()).error || errMsg; } catch { }
+                    return res.status(pythonRes.status).json({ error: errMsg });
+                }
+
+                return res.status(503).json({
+                    error: "The Lexora Python sentiment model service is currently unavailable or starting up. Please try again in a few moments."
+                });
             }
 
             // Python already returns structured JSON — forward it directly.

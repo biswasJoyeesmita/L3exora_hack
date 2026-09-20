@@ -2,9 +2,9 @@
    LEXORA — Backend server
    ========================================================================== */
 
-require("dotenv").config();
-
-const { spawn } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+const { spawn, spawnSync } = require("child_process");
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -14,38 +14,72 @@ const rateLimit = require("express-rate-limit");
 const analyzeRoute = require("./src/routes/analyze");
 const contactRoute = require("./src/routes/contact");
 const reportRoute = require("./src/routes/report");
+const auditRoute = require("./src/routes/audit");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ORIGIN = process.env.CORS_ORIGIN || "*";
 let pythonService;
 
+function resolvePythonCommand() {
+  if (process.env.PYTHON_COMMAND) {
+    return process.env.PYTHON_COMMAND.split(/\s+/).filter(Boolean);
+  }
+
+  const preferred = ["python", "python3", "py"];
+  for (const candidate of preferred) {
+    const result = spawnSync(candidate, ["--version"], { stdio: "ignore" });
+    if (result.error === undefined) {
+      return [candidate];
+    }
+  }
+
+  return ["python"];
+}
+
 async function ensurePythonService() {
   if (process.env.START_LEXORA_PYTHON === "false") return;
 
-  try {
-    const health = await fetch("http://127.0.0.1:5000/api/health");
-    if (health.ok) return;
-  } catch { }
+  const startupTimeoutMs = Number(process.env.PYTHON_START_TIMEOUT_MS || 30000);
+  const startedAt = Date.now();
 
-  pythonService = spawn(
-    process.env.PYTHON_COMMAND || "python",
-    ["api_server.py"],
-    {
-      cwd: `${__dirname}/Lexora`,
-      stdio: "inherit",
-      windowsHide: true,
-    }
-  );
+  while (Date.now() - startedAt < startupTimeoutMs) {
+    try {
+      const health = await fetch("http://127.0.0.1:5000/api/health");
+      if (health.ok) return;
+    } catch { }
 
-  pythonService.on("error", (error) => {
-    console.error(`Could not start Lexora Python service: ${error.message}`);
-  });
-  pythonService.on("exit", (code) => {
-    if (code !== 0) {
-      console.error(`Lexora Python service exited with code ${code}.`);
+    if (!pythonService) {
+      const scriptDir = fs.existsSync(path.join(__dirname, "Lexora", "L3exora_hack"))
+        ? path.join(__dirname, "Lexora", "L3exora_hack")
+        : __dirname;
+
+      const [pythonBinary, ...pythonArgs] = resolvePythonCommand();
+      pythonService = spawn(
+        pythonBinary,
+        [...pythonArgs, "api_server.py"],
+        {
+          cwd: scriptDir,
+          stdio: "inherit",
+          windowsHide: true,
+        }
+      );
+
+      pythonService.on("error", (error) => {
+        console.error(`Could not start Lexora Python service: ${error.message}`);
+      });
+      pythonService.on("exit", (code) => {
+        if (code !== 0) {
+          console.error(`Lexora Python service exited with code ${code}.`);
+        }
+        pythonService = null;
+      });
     }
-  });
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  console.warn("Lexora Python service did not become healthy within the startup timeout.");
 }
 
 app.use(helmet({
@@ -92,6 +126,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api", analyzeLimiter, analyzeRoute);
 app.use("/api", contactLimiter, contactRoute);
 app.use("/api", reportRoute);
+app.use("/api", auditRoute);
 app.use(express.static("public"));
 // 404 handler
 app.use((req, res) => {

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audit Trail — LEXORA</title>
+    <meta name="description" content="View stored audit trail records for previous findings and their timestamps." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <header class="site-header" id="top">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <span class="logo-mark" aria-hidden="true"></span>
+                <span class="logo-text">LEXORA</span>
+            </a>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false"
+                aria-controls="primaryNav">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav class="primary-nav" id="primaryNav">
+                <a href="./index.html" class="nav-link">Home</a>
+                <a href="./index.html#dashboard" class="nav-link">Monitoring Dashboard</a>
+                <a href="./analysis.html" class="nav-link">Project Details</a>
+                <a href="./audit-trail.html" class="nav-link is-active" aria-current="page">Audit Trail</a>
+                <a href="./about.html" class="nav-link">About Us</a>
+                <a href="#footerEmail" class="nav-link">Contact Us</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="section-inner" style="padding-top: 4rem; padding-bottom: 4rem;">
+            <div class="dash-card section-card audit-card" style="max-width: 1100px; margin: 0 auto;">
+                <div class="card-head">
+                    <i class="fa-solid fa-link"></i> Audit Trail
+                    <span class="table-count-badge" id="auditEntryCount">0 entries</span>
+                </div>
+                <p class="audit-desc">
+                    All previous records are stored here before edits or deletions, with the date and details kept in
+                    order.
+                </p>
+
+                <div class="audit-actions">
+                    <button class="btn btn-secondary" id="verifyChainBtn" type="button">
+                        <i class="fa-solid fa-shield-halved"></i> Verify
+                    </button>
+                    <button class="btn btn-secondary" id="refreshAuditBtn" type="button">
+                        <i class="fa-solid fa-rotate"></i> Refresh Log
+                    </button>
+                    <span id="auditVerifyResult" class="audit-verify-result"></span>
+                </div>
+
+                <div class="audit-log-list" id="auditLogList">
+                    <p class="audit-log-empty" id="auditLogEmpty">No high-severity entries logged yet.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer" id="footerEmail">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="footer-logo">LEXORA</span>
+                <span class="footer-tagline">AI-powered content analysis &amp; Social Media Monitoring</span>
+            </div>
+            <div class="footer-contact">
+                <a href="mailto:teameldorado2026@gmail.com" class="footer-email"
+                    id="footerEmailLink">teameldorado2026@gmail.com</a>
+            </div>
+        </div>
+        <p class="footer-copyright">© 2026 Lexora. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

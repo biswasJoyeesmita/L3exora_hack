@@ -21,11 +21,13 @@ TIER_LABELS = {
 }
 
 
-def fetch_youtube_comments(query, max_videos=100, max_comments_per_video=100, target_quota=500, prioritize_threats=True):
+def fetch_youtube_comments(query, target_videos=20, max_comments_per_video=300, target_quota=None, prioritize_threats=False, max_videos=None):
     """
-    Searches YouTube for videos matching `query`, extracts comments across videos with pagination,
-    and ensures target_quota is satisfied by retrieving comments across multiple videos and search pages.
+    Searches YouTube for `target_videos` matching `query`, extracts video metadata
+    (title, description/caption, channel), and retrieves all top comments across all videos.
     """
+    if max_videos is not None:
+        target_videos = max_videos
     if not YOUTUBE_API_KEY:
         raise RuntimeError(
             "YOUTUBE_API_KEY environment variable is not set. "
@@ -37,21 +39,54 @@ def fetch_youtube_comments(query, max_videos=100, max_comments_per_video=100, ta
     extracted_comments = []
     seen_comment_ids = set()
     search_token = None
-    searched_videos = 0
+    fetched_video_items = []
+
+    # Gather target_videos YouTube search items
+    while len(fetched_video_items) < target_videos:
+        try:
+            req = youtube.search().list(
+                q=query,
+                type="video",
+                part="id,snippet",
+                maxResults=min(50, target_videos - len(fetched_video_items)),
+                order="relevance",
+                pageToken=search_token
+            )
+            search_response = req.execute()
+            items = search_response.get("items", [])
+            if not items:
+                break
+            fetched_video_items.extend(items)
+            search_token = search_response.get("nextPageToken")
+            if not search_token:
+                break
+        except Exception as err:
+            print(f"[WARN] YouTube search list error: {err}")
+            break
+
+    if not fetched_video_items:
+        return []
 
     def fetch_video_comments(video_item):
         video_id = video_item["id"]["videoId"]
-        video_title = video_item["snippet"]["title"]
-        video_comments = []
+        snippet = video_item.get("snippet", {})
+        video_title = snippet.get("title", "")
+        video_description = snippet.get("description", "").strip()
+        channel_title = snippet.get("channelTitle", "YouTube Creator")
+
+        candidates = []
+        lawful = []
+        scan_limit = max(100, max_comments_per_video)
+        scanned_count = 0
 
         try:
             video_youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
             c_token = None
-            while len(video_comments) < max_comments_per_video:
+            while scanned_count < scan_limit:
                 req = video_youtube.commentThreads().list(
                     part="snippet",
                     videoId=video_id,
-                    maxResults=min(100, max_comments_per_video - len(video_comments)),
+                    maxResults=min(100, scan_limit - scanned_count),
                     textFormat="plainText",
                     pageToken=c_token
                 )
@@ -60,87 +95,66 @@ def fetch_youtube_comments(query, max_videos=100, max_comments_per_video=100, ta
                 if not items:
                     break
                 for item in items:
+                    scanned_count += 1
                     c_id = item.get("id")
                     comment_data = item["snippet"]["topLevelComment"]["snippet"]
                     text = comment_data.get("textDisplay", "").strip()
                     if text and c_id not in seen_comment_ids:
                         seen_comment_ids.add(c_id)
-                        video_comments.append({
+                        c_obj = {
                             "video_id": video_id,
                             "video_title": video_title,
+                            "video_description": video_description,
+                            "channel_title": channel_title,
                             "username": comment_data.get("authorDisplayName", "Anonymous"),
-                            "text": text
-                        })
+                            "text": text,
+                            "context": f"Topic: {query}; Video: {video_title}; Channel: {channel_title}; Caption: {video_description[:250]}",
+                        }
+                        lex = classify.check_lexicon(text)
+                        raw_tier = lex.get("lexicon_tier") or 1
+                        lex_tier = int(raw_tier) if isinstance(raw_tier, (int, str)) and str(raw_tier).isdigit() else 1
+                        is_cand = (
+                            lex_tier >= 2
+                            or bool(lex.get("matched_terms"))
+                            or bool(lex.get("target_terms_found"))
+                            or classify.has_negative_sentiment(text)
+                        )
+                        c_obj["is_candidate"] = is_cand
+                        c_obj["lexicon_res"] = lex
+
+                        if is_cand:
+                            candidates.append(c_obj)
+                        elif len(lawful) < 15:
+                            lawful.append(c_obj)
+
                 c_token = comment_response.get("nextPageToken")
                 if not c_token:
                     break
-        except Exception:
+        except Exception as c_err:
+            print(f"[WARN] Video comment fetch error for {video_id}: {c_err}")
             pass
-        return video_comments
 
-    # Keep searching video pages until target_quota comments are gathered
-    while len(extracted_comments) < target_quota and searched_videos < 200:
-        try:
-            req = youtube.search().list(
-                q=query,
-                type="video",
-                part="id,snippet",
-                maxResults=50,
-                order="relevance",
-                pageToken=search_token
-            )
-            search_response = req.execute()
-            items = search_response.get("items", [])
-            if not items:
-                break
+        # Return ALL candidate threat/abusive comments found (even at comment #900+) plus lawful sample
+        return candidates + lawful
 
-            searched_videos += len(items)
-            search_token = search_response.get("nextPageToken")
+    with ThreadPoolExecutor(max_workers=min(15, len(fetched_video_items))) as executor:
+        comment_groups = executor.map(fetch_video_comments, fetched_video_items)
 
-            with ThreadPoolExecutor(max_workers=min(15, len(items))) as executor:
-                comment_groups = executor.map(fetch_video_comments, items)
+    for group in comment_groups:
+        extracted_comments.extend(group)
 
-            for group in comment_groups:
-                extracted_comments.extend(group)
-                if len(extracted_comments) >= target_quota * 1.5:
-                    break
-
-            if not search_token:
-                break
-        except Exception:
-            break
-
-    # If YouTube search returned fewer unique comments than requested target_quota,
-    # pad by repeating unique comments so total is EXACTLY target_quota
-    if 0 < len(extracted_comments) < target_quota:
-        base_count = len(extracted_comments)
-        idx = 0
-        while len(extracted_comments) < target_quota:
-            dup = dict(extracted_comments[idx % base_count])
-            extracted_comments.append(dup)
-            idx += 1
-
-    if prioritize_threats and len(extracted_comments) > target_quota:
-        high_risk_comments = []
-        lawful_comments = []
-
-        for c in extracted_comments:
-            lex = classify.check_lexicon(c["text"])
-            raw_tier = lex.get("lexicon_tier")
-            tier = int(raw_tier) if raw_tier in (1, 2, 3, 4, 5) else 1
-            if tier >= 2 or lex.get("matched_terms"):
-                high_risk_comments.append(c)
-            else:
-                lawful_comments.append(c)
+    # If target_quota requested, ensure all high risk/candidates are preserved first
+    if target_quota and len(extracted_comments) > target_quota:
+        high_risk_comments = [c for c in extracted_comments if c.get("is_candidate")]
+        lawful_comments = [c for c in extracted_comments if not c.get("is_candidate")]
 
         selected = high_risk_comments[:target_quota]
         remaining_needed = target_quota - len(selected)
         if remaining_needed > 0:
             selected.extend(lawful_comments[:remaining_needed])
-
         return selected[:target_quota]
 
-    return extracted_comments[:target_quota]
+    return extracted_comments
 
 
 def generate_social_impact_summary(query, comments, results):
@@ -196,7 +210,7 @@ Write a concise 3-5 sentence SOCIAL IMPACT ASSESSMENT answering:
 Be factual, neutral, and professional. Do not name individuals. End with a one-line RISK LEVEL statement."""
 
         response = _client.models.generate_content(
-            model="gemini-2.0-flash-lite",
+            model="gemini-3.6-flash",
             contents=prompt,
             config=gtypes.GenerateContentConfig(temperature=0.3),
         )
@@ -286,11 +300,12 @@ def build_report(query, comments, results, social_impact=None):
     lines.append("=" * 100)
     lines.append("  OVERALL STATISTICS")
     lines.append("=" * 100)
+    safe_total = max(1, total)
     lines.append(f"  Total comments scanned    : {total}")
-    lines.append(f"  Tier 1  Lawful / Neutral  : {tier_counts_global.get(1, 0)}  ({tier_counts_global.get(1, 0)/total*100:.1f}%)")
-    lines.append(f"  Tier 2  Abusive           : {tier_counts_global.get(2, 0)}  ({tier_counts_global.get(2, 0)/total*100:.1f}%)")
-    lines.append(f"  Tier 3  Hate Speech       : {tier_counts_global.get(3, 0)}  ({tier_counts_global.get(3, 0)/total*100:.1f}%)")
-    lines.append(f"  Tier 4  Direct Threat     : {tier_counts_global.get(4, 0)}  ({tier_counts_global.get(4, 0)/total*100:.1f}%)")
+    lines.append(f"  Tier 1  Lawful / Neutral  : {tier_counts_global.get(1, 0)}  ({tier_counts_global.get(1, 0)/safe_total*100:.1f}%)")
+    lines.append(f"  Tier 2  Abusive           : {tier_counts_global.get(2, 0)}  ({tier_counts_global.get(2, 0)/safe_total*100:.1f}%)")
+    lines.append(f"  Tier 3  Hate Speech       : {tier_counts_global.get(3, 0)}  ({tier_counts_global.get(3, 0)/safe_total*100:.1f}%)")
+    lines.append(f"  Tier 4  Direct Threat     : {tier_counts_global.get(4, 0)}  ({tier_counts_global.get(4, 0)/safe_total*100:.1f}%)")
     lines.append("")
 
     lines.append("=" * 100)
@@ -320,7 +335,7 @@ def run_live_pipeline(query, max_videos=8, max_comments_per_video=15):
     print(f"LEXORA LIVE INGESTION: Fetching YouTube feed for: {query}")
     print("============================================================\n")
 
-    comments = fetch_youtube_comments(query, max_videos=max_videos, max_comments_per_video=max_comments_per_video)
+    comments = fetch_youtube_comments(query, target_videos=max_videos, max_comments_per_video=max_comments_per_video)
     print(f"Harvested {len(comments)} real YouTube comments.\n")
 
     results = []

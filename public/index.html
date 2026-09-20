@@ -42,6 +42,7 @@
         <a href="#home" class="nav-link">Home</a>
         <a href="#dashboard" class="nav-link">Monitoring Dashboard</a>
         <a href="./analysis.html" class="nav-link">Project Details</a>
+        <a href="./audit-trail.html" class="nav-link">Audit Trail</a>
         <a href="./about.html" class="nav-link">About Us</a>
         <a href="#footerEmail" class="nav-link">Contact Us</a>
       </nav>
@@ -92,10 +93,14 @@
 
             <div class="control-group control-group-sm">
               <label for="reportCommentsInput" class="control-label">
-                <i class="fa-solid fa-list-check"></i> Comments to Scan
+                <i class="fa-solid fa-video"></i> Target Videos to Scan
               </label>
-              <input type="number" id="reportCommentsInput" class="control-input" min="1" max="2000" step="1"
-                value="200" />
+              <select id="reportCommentsInput" class="control-input">
+                <option value="10">10 Videos (~1,000+ comments)</option>
+                <option value="20" selected>20 Videos (~3,000+ comments)</option>
+                <option value="50">50 Videos (~10,000+ comments)</option>
+                <option value="100">100 Videos (~20,000+ comments)</option>
+              </select>
             </div>
 
             <div class="control-actions">
@@ -161,11 +166,11 @@
             <!-- Main Statistics Cards -->
             <div class="dash-stats-grid">
               <div class="dash-card stat-card">
-                <div class="stat-icon"><i class="fa-solid fa-comments"></i></div>
+                <div class="stat-icon"><i class="fa-solid fa-video"></i></div>
                 <div class="stat-data">
-                  <span class="stat-label">Comments Scanned</span>
-                  <span class="stat-value" id="commentsScanned">0</span>
-                  <span class="stat-hint">YouTube comments</span>
+                  <span class="stat-label">Videos Scanned</span>
+                  <span class="stat-value" id="videosScanned">0</span>
+                  <span class="stat-hint"><span id="commentsScanned">0</span> comments analyzed</span>
                 </div>
               </div>
 
@@ -188,17 +193,10 @@
               </div>
             </div>
 
-            <!-- Risk Level & Online Community Impact Assessment (Before Tier Breakdown) -->
+            <!-- Public Sentiment & Online Community Impact Assessment -->
             <div class="dash-card section-card risk-summary-card">
               <div class="card-head">
-                <i class="fa-solid fa-gauge-high"></i> Risk Level &amp; Topic Impact Assessment
-              </div>
-              <div class="risk-row">
-                <span class="risk-label">Assessed Risk Level</span>
-                <span class="risk-badge" id="riskBadge">—</span>
-              </div>
-              <div class="risk-bar-track">
-                <div class="risk-bar-fill" id="riskBarFill" style="width: 0%;"></div>
+                <i class="fa-solid fa-comments"></i> Public Sentiment &amp; Topic Impact Assessment
               </div>
 
               <!-- Topic Community Impact Summary (Always visible with 4-sentence qualitative analysis) -->
@@ -265,6 +263,7 @@
                 </p>
               </div>
             </div>
+
 
           </div>
 
