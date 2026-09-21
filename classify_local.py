@@ -8,12 +8,19 @@ import os
 from transformers import pipeline
 from lexicon import check_lexicon
 
-# Load Hugging Face RoBERTa Sentiment Model locally (downloads automatically on first run)
-print("Loading local Hugging Face sentiment model...")
-_sentiment_pipeline = pipeline(
-    "sentiment-analysis",
-    model="cardiffnlp/twitter-roberta-base-sentiment-latest"
-)
+# Lazy load Hugging Face RoBERTa Sentiment Model locally so import is instantaneous
+_sentiment_pipeline = None
+
+def _get_sentiment_pipeline():
+    global _sentiment_pipeline
+    if _sentiment_pipeline is None:
+        print("Loading local Hugging Face sentiment model...")
+        _sentiment_pipeline = pipeline(
+            "sentiment-analysis",
+            model="cardiffnlp/twitter-roberta-base-sentiment-latest"
+        )
+    return _sentiment_pipeline
+
 
 
 def _map_sentiment_to_tier(label: str, text: str, lex: dict, video_ctx: dict = None) -> tuple:
@@ -56,10 +63,30 @@ def classify_video_context(video_id: str, video_title: str) -> dict:
     if video_id in _video_sentiment_cache:
         return _video_sentiment_cache[video_id]
 
-    raw_res = _sentiment_pipeline(video_title, truncation=True, max_length=512)[0]
+    raw_res = _get_sentiment_pipeline()(video_title, truncation=True, max_length=512)[0]
     result = {"label": raw_res["label"].lower(), "score": raw_res["score"]}
     _video_sentiment_cache[video_id] = result
     return result
+
+
+def _generate_local_explanation(tier_num: int, tier_label: str, text: str, flagged_terms: list, target_desc: str, sentiment_label: str) -> str:
+    triggers_clean = ", ".join(f"'{t}'" for t in flagged_terms[:4]) if flagged_terms else ""
+    target_str = f"directed toward {target_desc}" if target_desc else "in the commentary"
+
+    if tier_num == 4:
+        if triggers_clean:
+            return f"The comment expresses explicit threats of harm or prohibited exploitation ({triggers_clean}) {target_str}."
+        return "The comment contains severe threats or prohibited exploit patterns requiring critical human review."
+    elif tier_num == 3:
+        if triggers_clean:
+            return f"The comment uses hate speech, incitement to unrest, or illicit deception ({triggers_clean}) {target_str}."
+        return "The comment promotes hostility, incitement, or prohibited deceptive activity."
+    elif tier_num == 2:
+        if triggers_clean:
+            return f"The comment uses targeted abusive or insulting language ({triggers_clean}) {target_str} with {sentiment_label} sentiment."
+        return f"The comment conveys targeted hostility or derogatory remarks {target_str}."
+    else:
+        return "The content is classified as lawful criticism or general discussion with no flagged abuse."
 
 
 def classify(text: str, context: str = None, video_id: str = None) -> dict:
@@ -75,6 +102,7 @@ def classify(text: str, context: str = None, video_id: str = None) -> dict:
         tier_label = "Direct Threat / Prohibited Exploit" if tier_num == 4 else "Incitement / Deception / Scam"
         target_desc = ", ".join(lex["target_terms_found"]) if lex["target_terms_found"] else None
         flagged_terms = lex["matched_terms"]
+        explanation = _generate_local_explanation(tier_num, tier_label, text, flagged_terms, target_desc, "threat / exploit")
         
         # Build structured justification
         try:
@@ -84,10 +112,10 @@ def classify(text: str, context: str = None, video_id: str = None) -> dict:
                 target=target_desc,
                 sentiment="Prohibited Exploit / Threat",
                 triggers=flagged_terms,
-                explanation=f"Content matched rule-based signal for {tier_label.lower()}: {', '.join(flagged_terms[:3])}."
+                explanation=explanation
             )
         except Exception:
-            justification = f"• Severity: Tier {tier_num} ({tier_label})\n• Triggers: {', '.join(flagged_terms[:3])}\n• Explanation: Flagged based on rule-based exploit signal."
+            justification = f"• Severity: Tier {tier_num} ({tier_label})\n• Target: {target_desc or 'Unspecified'}\n• Triggers: {', '.join(flagged_terms[:3])}\n• Explanation: {explanation}"
 
         return {
             "tier": tier_num,
@@ -102,7 +130,7 @@ def classify(text: str, context: str = None, video_id: str = None) -> dict:
 
     # 2. Local RoBERTa Sentiment Analysis (Reads entire sentence context)
     full_text = f"{context}: {text}" if context else text
-    raw_res = _sentiment_pipeline(full_text, truncation=True, max_length=512)[0]
+    raw_res = _get_sentiment_pipeline()(full_text, truncation=True, max_length=512)[0]
     
     sentiment_label = raw_res["label"]  # e.g., 'negative', 'neutral', 'positive'
     sentiment_score = raw_res["score"]
@@ -124,6 +152,7 @@ def classify(text: str, context: str = None, video_id: str = None) -> dict:
 
     justification = None
     if is_flagged:
+        explanation = _generate_local_explanation(tier_num, tier_label, text, flagged_terms, target_desc, f"{sentiment_label} ({sentiment_score:.2f})")
         try:
             from classify import build_structured_justification
             justification = build_structured_justification(
@@ -131,10 +160,10 @@ def classify(text: str, context: str = None, video_id: str = None) -> dict:
                 target=target_desc,
                 sentiment=f"{sentiment_label} ({sentiment_score:.2f})",
                 triggers=flagged_terms,
-                explanation=f"Detected {tier_label.lower()} language requiring review."
+                explanation=explanation
             )
         except Exception:
-            justification = f"• Severity: Tier {tier_num} ({tier_label})\n• Target: {target_desc or 'Unspecified'}\n• Triggers: {', '.join(flagged_terms)}\n• Explanation: Detected {tier_label.lower()} language."
+            justification = f"• Severity: Tier {tier_num} ({tier_label})\n• Target: {target_desc or 'Unspecified'}\n• Triggers: {', '.join(flagged_terms)}\n• Explanation: {explanation}"
 
     return {
         "tier": tier_num,

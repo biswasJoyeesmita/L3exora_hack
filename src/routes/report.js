@@ -69,7 +69,14 @@ router.get("/report", async (req, res, next) => {
                 try {
                     pythonRes = await fetch("http://127.0.0.1:5000/api/generate_report", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
+                        headers: {
+                            "Content-Type": "application/json",
+                            // Flask enforces the same shared key server-side (see
+                            // api_server.py's require_api_key) so the pipeline
+                            // can't be triggered directly on port 5000 either,
+                            // in case that port is ever reachable on its own.
+                            "X-Internal-Key": process.env.LEXORA_API_KEY || ""
+                        },
                         body: JSON.stringify({ query, target_videos: requestedVideos })
                     });
 

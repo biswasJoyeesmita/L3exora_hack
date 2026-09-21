@@ -23,7 +23,9 @@ async function waitForPythonAuditService() {
 router.get("/audit/verify", async (req, res, next) => {
     try {
         await waitForPythonAuditService();
-        const pyRes = await fetch("http://127.0.0.1:5000/api/audit/verify");
+        const pyRes = await fetch("http://127.0.0.1:5000/api/audit/verify", {
+            headers: { "X-Internal-Key": process.env.LEXORA_API_KEY || "" }
+        });
         let data;
         try {
             data = await pyRes.json();
@@ -44,7 +46,9 @@ router.get("/audit/log", async (req, res, next) => {
         const limit = req.query.limit ?? "50";
         const offset = req.query.offset ?? "0";
         const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
-        const pyRes = await fetch(`http://127.0.0.1:5000/api/audit/log?${params.toString()}`);
+        const pyRes = await fetch(`http://127.0.0.1:5000/api/audit/log?${params.toString()}`, {
+            headers: { "X-Internal-Key": process.env.LEXORA_API_KEY || "" }
+        });
         let data;
         try {
             data = await pyRes.json();

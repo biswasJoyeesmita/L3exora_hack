@@ -130,11 +130,11 @@ def build_structured_justification(tier, target=None, sentiment=None, triggers=N
     
     if not explanation or not explanation.strip():
         if tier >= 4:
-            explanation = "Content involves severe prohibited activities, cyberattacks, ransomware, or direct threats requiring immediate human review."
+            explanation = f"Content expresses severe direct threats or prohibited exploits ({triggers_str}) requiring critical human review."
         elif tier == 3:
-            explanation = "Content contains incitement to violence, deepfake deception, database breaches, or illegal scam activities requiring review."
+            explanation = f"Content contains hate speech, incitement to unrest, or illicit deception ({triggers_str}) requiring review."
         elif tier == 2:
-            explanation = "Content uses targeted insults, profanity, or degrading language requiring review."
+            explanation = f"Content uses targeted abusive or insulting language ({triggers_str}) directed at {target_str}."
         else:
             explanation = "Content is classified as lawful criticism or benign discussion."
     else:
@@ -161,12 +161,12 @@ def _throttle():
         time.sleep(wait)
     _last_call_time[0] = time.time()
 
-STAGE1_PROMPT = """You are a general-purpose content safety moderator analyzing one comment, post, caption, query, or transcript. Classify the complete content regardless of whether it concerns a government official, private individual, organization, public infrastructure, digital network, or election system.
+SINGLE_PROMPT = """You are a general-purpose content safety moderator analyzing one comment, post, caption, query, or transcript.
+Classify the complete content in context regardless of whether it concerns a government official, private individual, organization, public infrastructure, digital network, or election system.
 
 Do NOT judge individual words in isolation. Casual/informal vocabulary (Gen-Z slang like "lit", "sus", "bet", "savage", "cap", "vibe", "lowkey" etc.) is normal everyday language and is NOT inherently a signal of anything. What matters is what the whole sentence is doing — its actual meaning, tone, and intent, read the way a human would read it in context.
 
 Be especially careful with:
-- SHORT sentences or HASHTAGS ("#ai_ethics", "we want X", "X should happen") — these are almost always simple opinions, policy debates, or demands, NOT threats, unless they explicitly describe cyberattacks, violence, or illegal exploits.
 - Sarcasm, rhetorical questions, and mockery — read the real intent, not just individual charged words.
 - Policy discussion, technological debate, news, or general public commentary — keep these Tier 1 unless harmful/prohibited content is present.
 {context_block}
@@ -176,28 +176,15 @@ Classify the content into exactly one tier:
 3 = hate speech, dehumanizing attacks, incitement to violence, fake emergency audio, voice cloning impersonation, illegal database breaches, carding guides, or illegal gambling scam apps
 4 = direct/credible physical threats, ransomware source code, DDoS attacks, zero-day firmware exploits, phishing templates, MFA bypass, non-consensual synthetic imagery (CSAM/NCII), identity document forgery, or voting record manipulation
 
-Respond ONLY with JSON, no other text:
+Respond ONLY with a JSON object:
 {{
   "tier": <1-4>,
   "government_target_referenced": <true/false>,
   "target_description": "<who/what is being referenced, or null>",
-  "overall_sentiment": "<one short phrase, e.g. 'prohibited exploit', 'hostile and threatening', 'casual and neutral', 'critical but lawful', 'supportive'>",
-  "confidence": <0.0-1.0>
-}}
-
-Sentence: {text}
-"""
-
-STAGE2_PROMPT = """This content was flagged as tier {tier} ({sentiment}) toward {target}.
-
-Identify which specific words or phrases are carrying that hostility or prohibited exploit behavior. Pay special attention to any casual/slang word that is being used here with a harmful sense — explain the contextual meaning you're picking up.
-
-Respond ONLY with JSON, no other text:
-{{
-  "flagged_spans": [
-    {{"phrase": "<exact text>", "why": "<short reason, referencing context not just the word>"}}
-  ],
-  "justification": "<1-2 sentence explanation of the sentiment, target, and harmful behavior that led to the tier>"
+  "overall_sentiment": "<e.g. 'hostile and abusive', 'critical but lawful', 'neutral discussion', 'direct threat', 'supportive'>",
+  "confidence": <0.0-1.0>,
+  "flagged_spans": ["<exact words or phrases from the sentence that carry the harmful/abusive/threatening meaning, or empty array if Tier 1>"],
+  "explanation": "<1-2 sentence contextual explanation of specifically why this sentence was classified into this tier, explaining its actual meaning, target, and harmfulness or lawfulness>"
 }}
 
 Sentence: {text}
@@ -339,46 +326,37 @@ def classify(text: str, context: str = None, video_id: str = None) -> dict:
 
     context_block = f"\nThis text is a comment on content titled: \"{context}\" — use this only as background for what the comment is reacting to, do not classify the title itself.\n" if context else ""
 
-    # STAGE 1 — sentence-level sentiment/intent (context, not word lists)
-    stage1 = _call_llm(STAGE1_PROMPT.format(text=text, context_block=context_block))
+    res = _call_llm(SINGLE_PROMPT.format(text=text, context_block=context_block))
+    raw_tier = res.get("tier", 1) if isinstance(res, dict) else 1
+    raw_tier = raw_tier if raw_tier in (1, 2, 3, 4) else 1
+    sentiment = res.get("overall_sentiment") if isinstance(res, dict) else "neutral"
+    tier = normalize_tier_decision(raw_tier, sentiment, lex)
+    rule_tier = lex.get("lexicon_tier") or 1
+    tier = max(tier, rule_tier)
 
-    stage1_tier = stage1["tier"] if stage1["tier"] in (1, 2, 3, 4) else 1
-    tier = normalize_tier_decision(stage1_tier, stage1.get("overall_sentiment"), lex)
-    
-    result = {
+    flagged_spans = res.get("flagged_spans", []) if isinstance(res, dict) and isinstance(res.get("flagged_spans"), list) else []
+    target_desc = (res.get("target_description") if isinstance(res, dict) else None) or ", ".join(lex.get("target_terms_found", [])) or None
+    raw_explanation = res.get("explanation") if isinstance(res, dict) else None
+    all_triggers = flagged_spans or lex.get("matched_terms", [])
+
+    justification = build_structured_justification(
+        tier,
+        target=target_desc,
+        sentiment=sentiment,
+        triggers=all_triggers,
+        explanation=raw_explanation
+    ) if tier >= 2 else None
+
+    return {
         "tier": tier,
-        "government_target_referenced": stage1["government_target_referenced"],
-        "target_description": stage1.get("target_description"),
-        "overall_sentiment": stage1.get("overall_sentiment"),
-        "confidence": stage1.get("confidence"),
-        "flagged_terms": [],
-        "justification": None,
-        "source": "llm_stage1",
+        "government_target_referenced": bool(res.get("government_target_referenced", False)) if isinstance(res, dict) else bool(lex.get("government_target_referenced", False)),
+        "target_description": target_desc,
+        "overall_sentiment": sentiment,
+        "confidence": res.get("confidence") if isinstance(res, dict) else 0.9,
+        "flagged_terms": all_triggers if tier >= 2 else [],
+        "justification": justification,
+        "source": "llm_single_pass",
     }
-
-    if result["tier"] >= 2:
-        stage2 = _call_llm(
-            STAGE2_PROMPT.format(
-                text=text,
-                tier=stage1["tier"],
-                sentiment=stage1.get("overall_sentiment", ""),
-                target=stage1.get("target_description") or "the referenced person, group, or institution",
-            )
-        )
-        flagged_spans = [span["phrase"] for span in stage2.get("flagged_spans", [])]
-        raw_explanation = stage2.get("justification")
-        
-        result["flagged_terms"] = flagged_spans
-        result["justification"] = build_structured_justification(
-            tier,
-            target=result.get("target_description"),
-            sentiment=result.get("overall_sentiment"),
-            triggers=flagged_spans or lex.get("matched_terms", []),
-            explanation=raw_explanation
-        )
-        result["source"] = "llm_stage1+2"
-
-    return result
 
 
 if __name__ == "__main__":

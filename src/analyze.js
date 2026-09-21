@@ -66,11 +66,14 @@ function classifyTier(matches) {
     const hasAbuse = matches.some(
         m =>
             m.category === "abusive" ||
-            m.category === "offensive"
+            m.category === "offensive" ||
+            m.category === "insult" ||
+            m.category === "derogatory" ||
+            m.category === "profane" ||
+            m.category === "harassment"
     );
 
     if (hasThreat) {
-
         return {
             tier: 4,
             category: "Direct Threat",
@@ -79,7 +82,6 @@ function classifyTier(matches) {
     }
 
     if (hasIncitement) {
-
         return {
             tier: 3,
             category: "Hate Speech / Incitement",
@@ -88,7 +90,6 @@ function classifyTier(matches) {
     }
 
     if (hasAbuse) {
-
         return {
             tier: 2,
             category: "Abusive / Disrespectful",
@@ -101,6 +102,20 @@ function classifyTier(matches) {
         category: "Lawful / Neutral",
         risk: "Low"
     };
+}
+
+function generateJsReason(tier, matches) {
+    if (tier === 1 || !matches || matches.length === 0) {
+        return "No flagged abusive, threatening, or harmful language detected.";
+    }
+    const words = matches.map(m => `"${m.word}"`).join(", ");
+    if (tier === 4) {
+        return `The comment expresses direct or severe threats (${words}) requiring critical review.`;
+    }
+    if (tier === 3) {
+        return `The comment contains hate speech, incitement, or prohibited activity patterns (${words}) requiring review.`;
+    }
+    return `The comment contains targeted abusive or insulting language (${words}) requiring review.`;
 }
 async function analyzeContent(rawText) {
 
@@ -189,10 +204,7 @@ async function analyzeContent(rawText) {
             humanReview:
                 classification.tier >= 2,
 
-            reason:
-                matches.length
-                    ? "Detected language requiring review."
-                    : "No flagged language detected."
+            reason: generateJsReason(classification.tier, matches)
         };
     }
 }

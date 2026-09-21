@@ -20,6 +20,7 @@ import os
 import re
 import threading
 import time
+from functools import wraps
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -141,6 +142,47 @@ def generate_fallback_topic_summary(query, total, flagged_total, risk_level, tie
 app = Flask(__name__)
 CORS(app)  # allow your frontend (different port/origin) to call this
 
+
+def _allow_local_dev_request() -> bool:
+    """Allow the shared-secret check to relax only for localhost development.
+    Production remains fail-closed even when the key is missing."""
+    if os.environ.get("NODE_ENV") == "production":
+        return False
+
+    host = request.host or ""
+    return (
+        host in {"localhost", "127.0.0.1", "[::1]"}
+        or host.startswith("localhost:")
+        or host.startswith("127.0.0.1:")
+        or host.startswith("[::1]:")
+    )
+
+
+def require_api_key(f):
+    """Guards report-generation and audit endpoints with a shared secret,
+    LEXORA_API_KEY. Express already checks this at the edge (see
+    src/middleware/requireApiKey.js) and forwards it as X-Internal-Key
+    when it proxies here — this is the second layer, so hitting Flask's
+    port directly (e.g. if 5000 is ever reachable on its own) still
+    requires the key rather than bypassing Express entirely. Localhost dev
+    traffic is exempt so the demo can run without an externally managed key."""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if _allow_local_dev_request():
+            return f(*args, **kwargs)
+
+        configured_key = os.environ.get("LEXORA_API_KEY")
+        if not configured_key:
+            print("[SECURITY] LEXORA_API_KEY is not set — refusing protected request.")
+            return jsonify({"error": "Server misconfigured: API key not set."}), 500
+
+        provided_key = request.headers.get("X-Internal-Key") or request.headers.get("X-API-Key")
+        if not provided_key or provided_key != configured_key:
+            return jsonify({"error": "Missing or invalid API key."}), 401
+
+        return f(*args, **kwargs)
+    return wrapper
+
 # --- Resilience layer: caching + serialization + input caps ---
 # These three things together are what actually protect the app when
 # multiple users (or a judge deliberately stress-testing it) hit it at once.
@@ -210,6 +252,7 @@ def health():
 
 
 @app.route("/api/audit/verify", methods=["GET"])
+@require_api_key
 def audit_verify():
     """Recomputes every hash in the audit chain and reports whether it's
     intact — and exactly where it breaks, if it doesn't."""
@@ -217,6 +260,7 @@ def audit_verify():
 
 
 @app.route("/api/audit/log", methods=["GET"])
+@require_api_key
 def audit_log_route():
     """Query params: ?limit=50&offset=0 (most-recent-first). Omit limit for
     the full chain."""
@@ -338,6 +382,7 @@ def analyze():
 
 
 @app.route("/api/generate_report", methods=["POST"])
+@require_api_key
 def generate_report():
     """
     Body: {"query": "Agnipath protest", "target_comments": 200}
