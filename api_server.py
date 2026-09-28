@@ -689,12 +689,16 @@ def _run_generate_report(query: str, target_videos: int) -> dict:
     }
 
 
-if __name__ == "__main__":
+    # Pre-warm local pipeline in background so first request doesn't incur download/loading lag
+    def _prewarm():
+        try:
+            import classify_local
+            classify_local._get_sentiment_pipeline()
+            print("  [PREWARM] Local Hugging Face RoBERTa model pre-warmed and ready.")
+        except Exception as _pw_err:
+            print(f"  [PREWARM] Notice: Background prewarm skipped ({_pw_err})")
+
+    threading.Thread(target=_prewarm, daemon=True).start()
+
     port = int(os.environ.get("PORT", 5000))
-    # threaded=True is the critical fix: without it, Flask's dev server
-    # handles ONE request at a time — every other user (even /api/health)
-    # queues behind whoever's search is currently running. In production,
-    # run this under gunicorn with a single worker + multiple threads
-    # instead (see README) so the in-memory cache/lock above stays valid
-    # across requests: `gunicorn -w 1 --threads 8 -b 0.0.0.0:$PORT api_server:app`
     app.run(host="0.0.0.0", port=port, debug=False, threaded=True)

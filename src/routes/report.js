@@ -98,14 +98,17 @@ router.get("/report", async (req, res, next) => {
             }
 
             if (!pythonRes || !pythonRes.ok) {
-                if (pythonRes && pythonRes.status >= 400 && pythonRes.status < 500) {
+                if (pythonRes) {
                     let errMsg = "Python backend error.";
-                    try { errMsg = (await pythonRes.json()).error || errMsg; } catch { }
+                    try { 
+                        const errData = await pythonRes.json();
+                        errMsg = errData.error || errMsg; 
+                    } catch { }
                     return res.status(pythonRes.status).json({ error: errMsg });
                 }
 
                 return res.status(503).json({
-                    error: "The Lexora Python sentiment model service is currently unavailable or starting up. Please try again in a few moments."
+                    error: "The Lexora Python sentiment model service is currently initializing or loading models into memory. Please wait a few moments and click Analyze again."
                 });
             }
 
