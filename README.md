@@ -149,19 +149,7 @@ Lexora categorizes every analyzed comment into four clear operational tiers:
 ## 📁 Repository & File Directory Guide
 
 ```
-Government-Abuse-Detection-System/
-└── Lexora/
-    ├── brain/                                 ← Permanent architectural memory & decision records
-    │   ├── ARCHITECTURE.md                    ← System architecture & structural overview
-    │   ├── CONSTRAINTS.md                     ← Inviolable moderation safety & code rules
-    │   ├── DECISIONS.md                       ← Living chronological architectural decision log
-    │   ├── FLOW.md                            ← Line-by-line runtime execution traces
-    │   ├── HANDOVER.md                        ← Session state, handoffs, and known rough edges
-    │   ├── ROLLBACK.md                        ← Emergency rollback guides and safe checkpoints
-    │   ├── TEST_CHECKLIST.md                  ← Pre-flight & release manual verification checklist
-    │   └── VERSION_LOG.md                     ← Per-session changelog
-    │
-    └── L3exora_hack/                           ← MAIN WORKING REPOSITORY ROOT
+ L3exora_hack/                           ← MAIN WORKING REPOSITORY ROOT
         ├── server.js                          ← Express server entrypoint (:3000) with Python process auto-spawning
         ├── api_server.py                      ← Flask API service (:5000), pipeline orchestration & risk assessment
         ├── classify.py                        ← Gemini 3.6 Flash 2-stage classifier with retry & tier normalization
